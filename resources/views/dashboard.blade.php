@@ -1,16 +1,26 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
+        {{ __('Dashboard') }}
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
+            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card p-6 text-center">
+                <p class="text-gray-600 mb-4">Mengalihkan ke dashboard yang sesuai...</p>
+                
+                <script>
+                    // Redirect otomatis berdasarkan role
+                    const isAdmin = {{ auth()->user()->isAdmin() ? 'true' : 'false' }};
+                    if (isAdmin) {
+                        window.location.href = "{{ route('admin.dashboard') }}";
+                    } else {
+                        window.location.href = "{{ route('customer.dashboard') }}";
+                    }
+                </script>
+                
+                <noscript>
+                    <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('customer.dashboard') }}" class="text-primary underline">Klik di sini jika tidak diarahkan otomatis.</a>
+                </noscript>
             </div>
         </div>
     </div>

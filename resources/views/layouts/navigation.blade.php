@@ -11,11 +11,17 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
+                @php
+                    $dashboardRoute = auth()->check() 
+                        ? (auth()->user()->isAdmin() ? route('admin.dashboard') : route('customer.dashboard')) 
+                        : '/';
+                    
+                    $isDashboardActive = request()->routeIs('admin.dashboard') || request()->routeIs('customer.dashboard');
+                @endphp
+
+                <x-nav-link :href="$dashboardRoute" :active="$isDashboardActive">
+                    {{ __('Dashboard') }}
+                </x-nav-link>
             </div>
 
             <!-- Settings Dropdown -->
