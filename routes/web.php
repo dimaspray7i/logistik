@@ -37,7 +37,14 @@ Route::middleware('auth')->group(function () {
 // ROUTE GROUP: ADMIN
 // ==========================================
 Route::middleware(['auth', 'role.admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+        Route::resource('customers', \App\Http\Controllers\Admin\CustomerController::class);
+        Route::resource('contacts', \App\Http\Controllers\Admin\ContactController::class);
+        Route::resource('products', \App\Http\Controllers\Admin\ProductController::class)->except(['show']);
+        Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
+        Route::resource('vehicles', \App\Http\Controllers\Admin\VehicleController::class)->except(['show']);
+        Route::resource('drivers', \App\Http\Controllers\Admin\DriverController::class)->except(['show']);
 });
 
 // ==========================================

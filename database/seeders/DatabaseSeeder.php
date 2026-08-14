@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Customer;
+use App\Models\Contact;
 use App\Models\Driver;
 use App\Models\Order;
 use App\Models\Product;
@@ -34,6 +35,10 @@ class DatabaseSeeder extends Seeder
             Shipment::factory()->create([
                 'order_id' => $order->id,
                 'customer_id' => $order->customer_id,
+            ]);
+
+            Contact::factory(2)->create([
+                'customer_id' => $demoCustomer->id,
             ]);
         }
 
