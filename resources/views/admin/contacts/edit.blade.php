@@ -16,7 +16,7 @@
                     <div class="space-y-4">
                         <!-- Customer (read-only, tidak bisa dipindah) -->
                         <div>
-                            <p class="block text-sm font-medium text-gray-500">Customer</p>
+                            <p class="block text-sm font-medium text-gray-500">Pelanggan</p>
                             <p class="mt-1 text-base font-semibold text-gray-900">{{ $contact->customer->company_name ?? '-' }}</p>
                         </div>
 
@@ -49,14 +49,14 @@
                             </div>
                         </div>
 
-                        <label class="inline-flex items-center cursor-pointer">
+                        <label class="inline-flex item-center cursor-pointer">
                             <input type="checkbox" name="is_primary" value="1" @checked(old('is_primary', $contact->is_primary))
                                    class="rounded border-gray-300 text-primary focus:ring-primary">
                             <span class="ml-2 text-sm font-medium text-gray-700">Jadikan Primary Contact (PIC utama)</span>
                         </label>
                     </div>
 
-                    <div class="mt-6 flex items-center justify-end gap-4">
+                    <div class="mt-6 flex item-center justify-end gap-4">
                         <a href="{{ route('admin.contacts.index') }}" 
                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">
                             Cancel

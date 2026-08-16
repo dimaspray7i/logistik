@@ -15,13 +15,13 @@ enum ShipmentStatus: string
     public function label(): string
     {
         return match($this) {
-            self::DRAFT => 'Draft',
-            self::READY => 'Ready to Ship',
-            self::IN_TRANSIT => 'In Transit',
-            self::ARRIVED => 'Arrived',
-            self::DELIVERED => 'Delivered',
-            self::DELAYED => 'Delayed',
-            self::CANCELLED => 'Cancelled',
+            self::DRAFT => 'Draf',
+            self::READY => 'Siap Dikirim',
+            self::IN_TRANSIT => 'Dalam Perjalanan',
+            self::ARRIVED => 'Tiba di Tujuan',
+            self::DELIVERED => 'Terkirim',
+            self::DELAYED => 'Tertunda',
+            self::CANCELLED => 'Dibatalkan',
         };
     }
     
@@ -29,11 +29,11 @@ enum ShipmentStatus: string
     {
         return match($this) {
             self::DRAFT => 'gray',
-            self::READY => 'warning', // Yellow
-            self::IN_TRANSIT => 'info', // Blue
-            self::ARRIVED => 'success', // Green
+            self::READY => 'warning',  
+            self::IN_TRANSIT => 'info', 
+            self::ARRIVED => 'success', 
             self::DELIVERED => 'success',
-            self::DELAYED => 'primary', // Red
+            self::DELAYED => 'primary', 
             self::CANCELLED => 'gray',
         };
     }

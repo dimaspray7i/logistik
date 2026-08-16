@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between item-center">
             <h2 class="font-poppins font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Customers') }}
+                {{ __('Pelanggan') }}
             </h2>
             <a href="{{ route('admin.customers.create') }}" 
-               class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition ease-in-out duration-150">
-                + Add Customer
+               class="inline-flex item-center px-4 py-2 bg-primary border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition ease-in-out duration-150">
+                + Tambah Pelanggan
             </a>
         </div>
     </x-slot>
@@ -48,9 +48,9 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIC</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kontak</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kota</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -72,15 +72,15 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                         <a href="{{ route('admin.customers.show', $customer) }}" 
-                                           class="text-info hover:underline">View</a>
+                                           class="text-info hover:underline">Lihat</a>
                                         <a href="{{ route('admin.customers.edit', $customer) }}" 
-                                           class="text-warning hover:underline">Edit</a>
+                                           class="text-warning hover:underline">Ubah</a>
                                         <form action="{{ route('admin.customers.destroy', $customer) }}" 
                                               method="POST" class="inline"
                                               onsubmit="return confirm('Yakin ingin menghapus customer ini?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-primary hover:underline">Delete</button>
+                                            <button type="submit" class="text-primary hover:underline">Hapus</button>
                                         </form>
                                     </td>
                                 </tr>

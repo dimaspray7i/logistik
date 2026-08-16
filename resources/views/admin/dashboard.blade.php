@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-poppins font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Admin Dashboard') }}
+            {{ __('Dasbor Admin') }}
         </h2>
     </x-slot>
 
@@ -10,11 +10,11 @@
         <!-- SECTION 1: STATISTICS CARDS -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             
-            <!-- Card: Total Customers -->
+            <!-- Card: Total Pelanggan -->
             <div class="bg-white overflow-hidden shadow-soft sm:rounded-card p-5 border-l-4 border-primary">
-                <div class="flex items-center justify-between">
+                <div class="flex item-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase">Total Customers</p>
+                        <p class="text-xs font-medium text-gray-500 uppercase">Total Pelanggan</p>
                         <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total_customers'] }}</p>
                     </div>
                     <div class="p-2 bg-red-50 rounded-lg">
@@ -23,11 +23,11 @@
                 </div>
             </div>
 
-            <!-- Card: Total Orders -->
+            <!-- Card: Total Pesanan -->
             <div class="bg-white overflow-hidden shadow-soft sm:rounded-card p-5 border-l-4 border-info">
-                <div class="flex items-center justify-between">
+                <div class="flex item-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase">Total Orders</p>
+                        <p class="text-xs font-medium text-gray-500 uppercase">Total Pesanan</p>
                         <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total_orders'] }}</p>
                     </div>
                     <div class="p-2 bg-blue-50 rounded-lg">
@@ -36,11 +36,11 @@
                 </div>
             </div>
 
-            <!-- Card: Total Shipments -->
+            <!-- Card: Total Pengiriman -->
             <div class="bg-white overflow-hidden shadow-soft sm:rounded-card p-5 border-l-4 border-gray-400">
-                <div class="flex items-center justify-between">
+                <div class="flex item-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase">Total Shipments</p>
+                        <p class="text-xs font-medium text-gray-500 uppercase">Total Pengiriman</p>
                         <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total_shipments'] }}</p>
                     </div>
                     <div class="p-2 bg-gray-100 rounded-lg">
@@ -49,11 +49,11 @@
                 </div>
             </div>
 
-            <!-- Card: In Transit -->
+            <!-- Card: Dalam Perjalanan -->
             <div class="bg-white overflow-hidden shadow-soft sm:rounded-card p-5 border-l-4 border-info">
-                <div class="flex items-center justify-between">
+                <div class="flex item-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase">In Transit</p>
+                        <p class="text-xs font-medium text-gray-500 uppercase">Dalam Perjalanan</p>
                         <p class="text-2xl font-bold text-info mt-1">{{ $stats['in_transit'] }}</p>
                     </div>
                     <div class="p-2 bg-blue-50 rounded-lg">
@@ -62,11 +62,11 @@
                 </div>
             </div>
 
-            <!-- Card: Delivered -->
+            <!-- Card: Terkirim -->
             <div class="bg-white overflow-hidden shadow-soft sm:rounded-card p-5 border-l-4 border-success">
-                <div class="flex items-center justify-between">
+                <div class="flex item-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase">Delivered</p>
+                        <p class="text-xs font-medium text-gray-500 uppercase">Terkirim</p>
                         <p class="text-2xl font-bold text-success mt-1">{{ $stats['delivered'] }}</p>
                     </div>
                     <div class="p-2 bg-green-50 rounded-lg">
@@ -75,11 +75,11 @@
                 </div>
             </div>
 
-            <!-- Card: Delayed -->
+            <!-- Card: Tertunda -->
             <div class="bg-white overflow-hidden shadow-soft sm:rounded-card p-5 border-l-4 border-primary">
-                <div class="flex items-center justify-between">
+                <div class="flex item-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-gray-500 uppercase">Delayed</p>
+                        <p class="text-xs font-medium text-gray-500 uppercase">Tertunda</p>
                         <p class="text-2xl font-bold text-primary mt-1">{{ $stats['delayed'] }}</p>
                     </div>
                     <div class="p-2 bg-red-50 rounded-lg">
@@ -92,18 +92,18 @@
 
         <!-- SECTION 2: RECENT SHIPMENTS TABLE -->
         <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="font-poppins font-semibold text-lg text-gray-800">Recent Shipments</h3>
-                <a href="#" class="text-sm text-info hover:underline">View All</a>
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between item-center">
+                <h3 class="font-poppins font-semibold text-lg text-gray-800">Pengiriman Terbaru</h3>
+                <a href="#" class="text-sm text-info hover:underline">Lihat Semua</a>
             </div>
             
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shipment</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengiriman</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rute</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estimasi</th>
                         </tr>
@@ -123,12 +123,15 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
                                         $statusColor = match($shipment->status->value) {
-                                            'IN_TRANSIT' => 'bg-blue-100 text-info',
-                                            'DELIVERED' => 'bg-green-100 text-success',
-                                            'READY' => 'bg-yellow-100 text-warning',
-                                            'DELAYED' => 'bg-red-100 text-primary',
-                                            default => 'bg-gray-100 text-gray-600',
-                                        };
+                                                'DRAFT' => 'bg-gray-100 text-gray-600',
+                                                'READY' => 'bg-blue-100 text-info',
+                                                'IN_TRANSIT' => 'bg-blue-100 text-info',
+                                                'ARRIVED' => 'bg-green-100 text-success',
+                                                'DELIVERED' => 'bg-green-100 text-success',
+                                                'DELAYED' => 'bg-yellow-100 text-yellow-700',
+                                                'CANCELLED' => 'bg-red-100 text-primary',
+                                                default => 'bg-gray-100 text-gray-600',
+                                            };
                                     @endphp
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge {{ $statusColor }}">
                                         {{ $shipment->status->label() }}
@@ -141,7 +144,7 @@
                         @empty
                             <tr>
                                 <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                                    Belum ada data shipment.
+                                    Belum ada data pengiriman.
                                 </td>
                             </tr>
                         @endforelse

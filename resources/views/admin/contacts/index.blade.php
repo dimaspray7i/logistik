@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between item-center">
             <h2 class="font-poppins font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Contacts / PIC') }}
             </h2>
             <a href="{{ route('admin.contacts.create') }}" 
-               class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 transition">
-                + Add Contact
+               class="inline-flex item-center px-4 py-2 bg-primary border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 transition">
+                + Tambah Kontak
             </a>
         </div>
     </x-slot>
@@ -49,18 +49,18 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Info</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse ($contacts as $contact)
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex item-center gap-2">
                                             <span class="text-sm font-medium text-gray-900">{{ $contact->name }}</span>
                                             @if ($contact->is_primary)
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge bg-yellow-100 text-yellow-700">
@@ -80,12 +80,12 @@
                                         <div class="text-xs text-gray-500">{{ $contact->email ?? '-' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <a href="{{ route('admin.contacts.edit', $contact) }}" class="text-warning hover:underline">Edit</a>
+                                        <a href="{{ route('admin.contacts.edit', $contact) }}" class="text-warning hover:underline">Ubah</a>
                                         <form action="{{ route('admin.contacts.destroy', $contact) }}" method="POST" class="inline"
                                               onsubmit="return confirm('Yakin ingin menghapus contact ini?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-primary hover:underline">Delete</button>
+                                            <button type="submit" class="text-primary hover:underline">Hapus</button>
                                         </form>
                                     </td>
                                 </tr>

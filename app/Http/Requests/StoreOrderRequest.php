@@ -32,8 +32,8 @@ class StoreOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'items.required' => 'Order harus memiliki minimal 1 item.',
-            'items.*.product_id.exists' => 'Product yang dipilih tidak valid.',
+            'items.required' => 'Pesanan harus memiliki minimal 1 item.',
+            'items.*.product_id.exists' => 'Produk yang dipilih tidak valid.',
         ];
     }
 }

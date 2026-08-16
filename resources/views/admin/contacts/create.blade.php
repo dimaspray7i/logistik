@@ -56,14 +56,14 @@
                             </div>
                         </div>
 
-                        <label class="inline-flex items-center cursor-pointer">
+                        <label class="inline-flex item-center cursor-pointer">
                             <input type="checkbox" name="is_primary" value="1" @checked(old('is_primary'))
                                    class="rounded border-gray-300 text-primary focus:ring-primary">
                             <span class="ml-2 text-sm font-medium text-gray-700">Jadikan Primary Contact (PIC utama)</span>
                         </label>
                     </div>
 
-                    <div class="mt-6 flex items-center justify-end gap-4">
+                    <div class="mt-6 flex item-center justify-end gap-4">
                         <a href="{{ route('admin.contacts.index') }}" 
                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">
                             Cancel

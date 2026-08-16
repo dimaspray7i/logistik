@@ -36,18 +36,18 @@
                         <div>
                             <label for="status" class="block text-sm font-medium text-gray-700">Status <span class="text-primary">*</span></label>
                             <select id="status" name="status" required class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                <option value="AVAILABLE" @selected(old('status', $vehicle->status->value) == 'AVAILABLE')>Available</option>
-                                <option value="IN_USE" @selected(old('status', $vehicle->status->value) == 'IN_USE')>In Use</option>
-                                <option value="MAINTENANCE" @selected(old('status', $vehicle->status->value) == 'MAINTENANCE')>Maintenance</option>
+                                <option value="AVAILABLE" @selected(old('status', $vehicle->status->label()) == 'AVAILABLE')>Available</option>
+                                <option value="IN_USE" @selected(old('status', $vehicle->status->label()) == 'IN_USE')>In Use</option>
+                                <option value="MAINTENANCE" @selected(old('status', $vehicle->status->label()) == 'MAINTENANCE')>Maintenance</option>
                             </select>
                         </div>
                         <div>
-                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                            <label for="notes" class="block text-sm font-medium text-gray-700">Catatan</label>
                             <textarea id="notes" name="notes" rows="2" class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">{{ old('notes', $vehicle->notes) }}</textarea>
                         </div>
                     </div>
-                    <div class="mt-6 flex items-center justify-end gap-4">
-                        <a href="{{ route('admin.vehicles.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">Cancel</a>
+                    <div class="mt-6 flex item-center justify-end gap-4">
+                        <a href="{{ route('admin.vehicles.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">Batal</a>
                         <button type="submit" class="px-6 py-2 bg-primary text-white rounded-btn font-semibold hover:bg-red-700 transition">Update Vehicle</button>
                     </div>
                 </form>
@@ -92,18 +92,18 @@
                         <div>
                             <label for="status" class="block text-sm font-medium text-gray-700">Status <span class="text-primary">*</span></label>
                             <select id="status" name="status" required class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                <option value="AVAILABLE" @selected(old('status', $vehicle->status->value) == 'AVAILABLE')>Available</option>
-                                <option value="IN_USE" @selected(old('status', $vehicle->status->value) == 'IN_USE')>In Use</option>
-                                <option value="MAINTENANCE" @selected(old('status', $vehicle->status->value) == 'MAINTENANCE')>Maintenance</option>
+                                <option value="AVAILABLE" @selected(old('status', $vehicle->status->label()) == 'AVAILABLE')>Available</option>
+                                <option value="IN_USE" @selected(old('status', $vehicle->status->label()) == 'IN_USE')>In Use</option>
+                                <option value="MAINTENANCE" @selected(old('status', $vehicle->status->label()) == 'MAINTENANCE')>Maintenance</option>
                             </select>
                         </div>
                         <div>
-                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                            <label for="notes" class="block text-sm font-medium text-gray-700">Catatan</label>
                             <textarea id="notes" name="notes" rows="2" class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">{{ old('notes', $vehicle->notes) }}</textarea>
                         </div>
                     </div>
-                    <div class="mt-6 flex items-center justify-end gap-4">
-                        <a href="{{ route('admin.vehicles.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">Cancel</a>
+                    <div class="mt-6 flex item-center justify-end gap-4">
+                        <a href="{{ route('admin.vehicles.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">Batal</a>
                         <button type="submit" class="px-6 py-2 bg-primary text-white rounded-btn font-semibold hover:bg-red-700 transition">Update Vehicle</button>
                     </div>
                 </form>

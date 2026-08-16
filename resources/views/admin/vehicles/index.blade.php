@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-poppins font-semibold text-xl text-gray-800 leading-tight">{{ __('Vehicles') }}</h2>
-            <a href="{{ route('admin.vehicles.create') }}" class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 transition">+ Add Vehicle</a>
+        <div class="flex justify-between item-center">
+            <h2 class="font-poppins font-semibold text-xl text-gray-800 leading-tight">{{ __('Kendaraan') }}</h2>
+            <a href="{{ route('admin.vehicles.create') }}" class="inline-flex item-center px-4 py-2 bg-primary border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 transition">+ Tambah Kendaraan</a>
         </div>
     </x-slot>
 
@@ -35,7 +35,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kapasitas</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -50,17 +50,17 @@
                                             $statusColor = match($vehicle->status->value) {
                                                 'AVAILABLE' => 'bg-green-100 text-success',
                                                 'IN_USE' => 'bg-blue-100 text-info',
-                                                'MAINTENANCE' => 'bg-yellow-100 text-yellow-700',
+                                                'MAINTENANCE' => 'bg-red-100 text-primary',
                                                 default => 'bg-gray-100 text-gray-600',
                                             };
                                         @endphp
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge {{ $statusColor }}">{{ $vehicle->status->value }}</span>
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge {{ $statusColor }}">{{ $vehicle->status->label() }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <a href="{{ route('admin.vehicles.edit', $vehicle) }}" class="text-warning hover:underline">Edit</a>
+                                        <a href="{{ route('admin.vehicles.edit', $vehicle) }}" class="text-warning hover:underline">Ubah</a>
                                         <form action="{{ route('admin.vehicles.destroy', $vehicle) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus vehicle ini?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="text-primary hover:underline">Delete</button>
+                                            <button type="submit" class="text-primary hover:underline">Hapus</button>
                                         </form>
                                     </td>
                                 </tr>

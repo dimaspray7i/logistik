@@ -45,6 +45,13 @@ Route::middleware(['auth', 'role.admin'])->prefix('admin')->name('admin.')->grou
         Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
         Route::resource('vehicles', \App\Http\Controllers\Admin\VehicleController::class)->except(['show']);
         Route::resource('drivers', \App\Http\Controllers\Admin\DriverController::class)->except(['show']);
+        Route::resource('shipments', \App\Http\Controllers\Admin\ShipmentController::class);
+        Route::get('/shipments/{shipment}/route', [\App\Http\Controllers\Admin\RouteController::class, 'edit'])->name('shipments.route.edit');
+        Route::post('/shipments/{shipment}/route', [\App\Http\Controllers\Admin\RouteController::class, 'store'])->name('shipments.route.store');
+        Route::post('/shipments/{shipment}/tracking', [\App\Http\Controllers\Admin\TrackingController::class, 'store'])->name('shipments.tracking.store');
+        Route::delete('/shipments/{shipment}/tracking/{trackingUpdate}', [\App\Http\Controllers\Admin\TrackingController::class, 'destroy'])->name('shipments.tracking.destroy');
+        Route::post('/shipments/{shipment}/documents', [\App\Http\Controllers\Admin\DocumentController::class, 'store'])->name('shipments.documents.store');
+        Route::delete('/shipments/{shipment}/documents/{document}', [\App\Http\Controllers\Admin\DocumentController::class, 'destroy'])->name('shipments.documents.destroy');
 });
 
 // ==========================================

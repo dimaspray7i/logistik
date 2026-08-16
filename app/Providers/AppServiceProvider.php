@@ -16,6 +16,12 @@ use App\Policies\ProductPolicy;
 use App\Policies\OrderPolicy;
 use App\Policies\VehiclePolicy;
 use App\Policies\DriverPolicy;
+use App\Models\Route;
+use App\Policies\RoutePolicy;
+use App\Models\TrackingUpdate;
+use App\Policies\TrackingUpdatePolicy;
+use App\Models\Document;
+use App\Policies\DocumentPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,5 +38,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Order::class, OrderPolicy::class);
         Gate::policy(Vehicle::class, VehiclePolicy::class);
         Gate::policy(Driver::class, DriverPolicy::class);
+        Gate::policy(Route::class, RoutePolicy::class);
+        Gate::policy(TrackingUpdate::class, TrackingUpdatePolicy::class);
+        Gate::policy(Document::class, DocumentPolicy::class);
     }
 }

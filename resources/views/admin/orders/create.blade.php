@@ -62,24 +62,24 @@
                             <label for="status" class="block text-sm font-medium text-gray-700">Status <span class="text-primary">*</span></label>
                             <select id="status" name="status" required
                                     class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                <option value="PENDING" @selected(old('status') == 'PENDING')>Pending</option>
-                                <option value="PROCESSING" @selected(old('status') == 'PROCESSING')>Processing</option>
-                                <option value="COMPLETED" @selected(old('status') == 'COMPLETED')>Completed</option>
-                                <option value="CANCELLED" @selected(old('status') == 'CANCELLED')>Cancelled</option>
+                                <option value="PENDING" @selected(old('status') == 'PENDING')>Menunggu</option>
+                                <option value="PROCESSING" @selected(old('status') == 'PROCESSING')>Diproses</option>
+                                <option value="COMPLETED" @selected(old('status') == 'COMPLETED')>Selesai</option>
+                                <option value="CANCELLED" @selected(old('status') == 'CANCELLED')>Dibatalkan</option>
                             </select>
                         </div>
 
                         <div>
-                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                            <label for="notes" class="block text-sm font-medium text-gray-700">Catatan</label>
                             <textarea id="notes" name="notes" rows="2"
                                       class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">{{ old('notes') }}</textarea>
                         </div>
                     </div>
 
-                    <!-- Order Items (Dynamic) -->
+                    <!-- Order Item (Dynamic) -->
                     <div class="space-y-4 mb-6">
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <h3 class="font-poppins font-semibold text-lg text-gray-800">Order Items</h3>
+                        <div class="flex justify-between item-center border-b pb-2">
+                            <h3 class="font-poppins font-semibold text-lg text-gray-800">Order Item</h3>
                             <button type="button" @click="addItem()" 
                                     class="text-sm text-info hover:underline font-medium">
                                 + Add Item
@@ -88,7 +88,7 @@
 
                         <template x-for="(item, index) in items" :key="index">
                             <div class="bg-gray-50 p-4 rounded-card space-y-3">
-                                <div class="flex justify-between items-start">
+                                <div class="flex justify-between item-start">
                                     <span class="text-sm font-medium text-gray-700" x-text="'Item #' + (index + 1)"></span>
                                     <button type="button" @click="removeItem(index)" 
                                             x-show="items.length > 1"
@@ -104,7 +104,7 @@
                                                 class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm text-sm">
                                             <option value="">-- Pilih Product --</option>
                                             <template x-for="product in products" :key="product.id">
-                                                <option :value="product.id" x-text="product.name + ' (' + product.sku + ')'"></option>
+                                                <option :value="product.id" x-text="product.name"></option>
                                             </template>
                                         </select>
                                     </div>
@@ -128,7 +128,7 @@
                                     </div>
 
                                     <div class="md:col-span-2">
-                                        <label class="block text-xs font-medium text-gray-600">Notes</label>
+                                        <label class="block text-xs font-medium text-gray-600">Catatan</label>
                                         <input type="text" :name="'items[' + index + '][notes]'" x-model="item.notes"
                                                class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm text-sm">
                                     </div>
@@ -138,8 +138,8 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex items-center justify-end gap-4">
-                        <a href="{{ route('admin.orders.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">Cancel</a>
+                    <div class="flex item-center justify-end gap-4">
+                        <a href="{{ route('admin.orders.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">Batal</a>
                         <button type="submit" class="px-6 py-2 bg-primary text-white rounded-btn font-semibold hover:bg-red-700 transition">Save Order</button>
                     </div>
                 </form>

@@ -70,7 +70,7 @@
                             </div>
 
                             <div>
-                                <label for="postal_code" class="block text-sm font-medium text-gray-700">Postal Code</label>
+                                <label for="postal_code" class="block text-sm font-medium text-gray-700">Kode Pos</label>
                                 <input id="postal_code" type="text" name="postal_code" value="{{ old('postal_code', $customer->postal_code) }}"
                                        class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm @error('postal_code') border-primary @enderror">
                                 @error('postal_code') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
@@ -78,14 +78,14 @@
                         </div>
 
                         <div>
-                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                            <label for="notes" class="block text-sm font-medium text-gray-700">Catatan</label>
                             <textarea id="notes" name="notes" rows="2"
                                       class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">{{ old('notes', $customer->notes) }}</textarea>
                         </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="mt-6 flex items-center justify-end gap-4">
+                    <div class="mt-6 flex item-center justify-end gap-4">
                         <a href="{{ route('admin.customers.index') }}" 
                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">
                             Cancel

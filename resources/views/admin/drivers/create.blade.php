@@ -31,8 +31,8 @@
                             </select>
                         </div>
                     </div>
-                    <div class="mt-6 flex items-center justify-end gap-4">
-                        <a href="{{ route('admin.drivers.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">Cancel</a>
+                    <div class="mt-6 flex item-center justify-end gap-4">
+                        <a href="{{ route('admin.drivers.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-btn font-semibold hover:bg-gray-300 transition">Batal</a>
                         <button type="submit" class="px-6 py-2 bg-primary text-white rounded-btn font-semibold hover:bg-red-700 transition">Save Driver</button>
                     </div>
                 </form>
