@@ -1,154 +1,129 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between item-center">
+        <div class="flex items-center justify-between">
             <h2 class="font-poppins font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Order Detail') }}
+                {{ __('Detail Order') }} — {{ $order->order_number }}
             </h2>
-            <div class="flex gap-2">
-                <a href="{{ route('admin.orders.edit', $order) }}" 
-                   class="inline-flex item-center px-4 py-2 bg-warning border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-600 transition">
-                    Edit
-                </a>
-                <a href="{{ route('admin.orders.index') }}" 
-                   class="inline-flex item-center px-4 py-2 bg-gray-200 border border-transparent rounded-btn font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition">
-                    Back to List
-                </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.orders.edit', $order) }}" class="btn-secondary">Ubah Order</a>
+                <a href="{{ route('admin.orders.index') }}" class="btn-ghost">Kembali</a>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="space-y-6">
 
-            <!-- Order Info Card -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100 p-6">
-                <div class="flex justify-between item-start mb-4">
-                    <div>
-                        <h3 class="font-poppins font-semibold text-lg text-gray-800">{{ $order->order_number }}</h3>
-                        <p class="text-sm text-gray-500 mt-1">{{ $order->order_date->format('d M Y') }}</p>
-                    </div>
-                    @php
-                        $statusColor = match($order->status->value) {
-                                                'PENDING' => 'bg-yellow-100 text-yellow-700',
-                                                'PROCESSING' => 'bg-blue-100 text-info',
-                                                'COMPLETED' => 'bg-green-100 text-success',
-                                                'CANCELLED' => 'bg-red-100 text-primary',
-                                                default => 'bg-gray-100 text-gray-600',
-                                            };
-                    @endphp
-                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-badge {{ $statusColor }}">
-                        {{ $order->status->label() }}
-                    </span>
+        <x-page-header title="Detail Order {{ $order->order_number }}" description="Informasi detail pesanan dan daftar pengiriman terkait.">
+            <x-slot name="actions">
+                <x-badge :status="$order->status" />
+                <a href="{{ route('admin.orders.index') }}" class="btn-ghost">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    <span>Kembali</span>
+                </a>
+            </x-slot>
+        </x-page-header>
+
+        <!-- Order Info Card -->
+        <div class="crm-card space-y-4">
+            <div class="border-b border-gray-100 pb-3 flex items-center justify-between">
+                <div>
+                    <h3 class="font-poppins font-bold text-base text-gray-900">{{ $order->order_number }}</h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Tanggal Order: {{ $order->order_date ? $order->order_date->format('d M Y') : '-' }}</p>
                 </div>
+                <x-badge :status="$order->status" />
+            </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t pt-4">
-                    <div>
-                        <p class="text-sm text-gray-500">Pelanggan</p>
-                        <a href="{{ route('admin.customers.show', $order->customer_id) }}" class="text-base font-medium text-info hover:underline">
-                            {{ $order->customer->company_name ?? '-' }}
-                        </a>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Total Item</p>
-                        <p class="text-base font-medium text-gray-900">{{ $order->items->count() }} item</p>
-                    </div>
-                    @if($order->notes)
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-xs text-gray-400 font-medium">Pelanggan</p>
+                    <a href="{{ route('admin.customers.show', $order->customer_id) }}" class="font-bold text-info hover:underline mt-0.5 block">
+                        {{ $order->customer->company_name ?? '-' }}
+                    </a>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 font-medium">Total Item</p>
+                    <p class="font-semibold text-gray-900 mt-0.5">{{ $order->items->count() }} item</p>
+                </div>
+                @if($order->notes)
                     <div class="md:col-span-2">
-                        <p class="text-sm text-gray-500">Catatan</p>
-                        <p class="text-base text-gray-700">{{ $order->notes }}</p>
+                        <p class="text-xs text-gray-400 font-medium">Catatan</p>
+                        <p class="text-sm text-gray-700 mt-0.5">{{ $order->notes }}</p>
                     </div>
-                    @endif
-                </div>
+                @endif
             </div>
-
-            <!-- Order Item Table -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="font-poppins font-semibold text-lg text-gray-800">Order Item</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kuantitas</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Berat</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satuan</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catatan</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($order->items as $item)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {{ $item->product->name ?? '-' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge bg-blue-100 text-info">
-                                            {{ $item->product->sku ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->quantity }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($item->weight, 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->unit }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-500">{{ $item->notes ?? '-' }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada item.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Related Shipments -->
-            @if($order->shipments->count() > 0)
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="font-poppins font-semibold text-lg text-gray-800">Related Shipments</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengiriman</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rute</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($order->shipments as $shipment)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $shipment->shipment_number }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $shipment->origin }} → {{ $shipment->destination }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $sColor = match($shipment->status->value) {
-                                                'DRAFT' => 'bg-gray-100 text-gray-600',
-                                                'READY' => 'bg-blue-100 text-info',
-                                                'IN_TRANSIT' => 'bg-blue-100 text-info',
-                                                'ARRIVED' => 'bg-green-100 text-success',
-                                                'DELIVERED' => 'bg-green-100 text-success',
-                                                'DELAYED' => 'bg-yellow-100 text-yellow-700',
-                                                'CANCELLED' => 'bg-red-100 text-primary',
-                                                default => 'bg-gray-100 text-gray-600',
-                                            };
-                                        @endphp
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge {{ $sColor }}">
-                                            {{ $shipment->status->label() }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            @endif
-
         </div>
+
+        <!-- Order Item Table -->
+        <div class="crm-card p-0 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <h3 class="font-poppins font-bold text-base text-gray-900">Daftar Barang (Order Items)</h3>
+            </div>
+            <div class="crm-table-container">
+                <table class="crm-table">
+                    <thead>
+                        <tr>
+                            <th>Produk</th>
+                            <th>SKU</th>
+                            <th>Jumlah</th>
+                            <th>Berat Total</th>
+                            <th>Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($order->items as $item)
+                            <tr>
+                                <td class="font-semibold text-gray-900">{{ $item->product->name ?? '-' }}</td>
+                                <td class="text-xs text-gray-600">{{ $item->product->sku ?? '-' }}</td>
+                                <td class="text-xs text-gray-800 font-medium">{{ number_format($item->quantity, 0) }} {{ $item->unit }}</td>
+                                <td class="text-xs text-gray-800 font-medium">{{ number_format($item->weight, 0) }} kg</td>
+                                <td class="text-xs text-gray-500">{{ $item->notes ?? '-' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="py-6 text-center text-gray-400">Tidak ada item barang dalam pesanan ini.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Shipments Created for this Order -->
+        @if ($order->shipments && $order->shipments->count() > 0)
+        <div class="crm-card p-0 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <h3 class="font-poppins font-bold text-base text-gray-900">Pengiriman Terkait</h3>
+            </div>
+            <div class="crm-table-container">
+                <table class="crm-table">
+                    <thead>
+                        <tr>
+                            <th>No. Pengiriman</th>
+                            <th>Rute</th>
+                            <th>Kendaraan</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($order->shipments as $shipment)
+                            <tr>
+                                <td class="font-bold text-gray-900">
+                                    <a href="{{ route('admin.shipments.show', $shipment) }}" class="hover:text-primary transition">
+                                        {{ $shipment->shipment_number }}
+                                    </a>
+                                </td>
+                                <td class="text-xs text-gray-600">{{ $shipment->origin }} &rarr; {{ $shipment->destination }}</td>
+                                <td class="text-xs text-gray-600">{{ $shipment->vehicle->plate_number ?? '-' }}</td>
+                                <td>
+                                    <x-badge :status="$shipment->status" />
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
     </div>
 </x-app-layout>

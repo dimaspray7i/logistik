@@ -1,193 +1,186 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between item-center">
-            <h2 class="font-poppins font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Customer Detail') }}
-            </h2>
-            <div class="flex gap-2">
-                <a href="{{ route('admin.customers.edit', $customer) }}" 
-                   class="inline-flex item-center px-4 py-2 bg-warning border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-600 transition">
-                    Edit
-                </a>
-                <a href="{{ route('admin.customers.index') }}" 
-                   class="inline-flex item-center px-4 py-2 bg-gray-200 border border-transparent rounded-btn font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition">
-                    Back to List
+    <div class="space-y-6">
+
+        <!-- Top Header & Actions -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <a href="{{ route('admin.customers.index') }}" class="btn-ghost text-xs self-start">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <span>Kembali ke Daftar Pelanggan</span>
+            </a>
+
+            <div class="flex items-center gap-2.5">
+                <a href="{{ route('admin.customers.edit', $customer) }}" class="btn-secondary">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <span>Ubah Data</span>
                 </a>
             </div>
         </div>
-    </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <x-page-header title="{{ $customer->company_name }}" description="Detail profil perusahaan, kontak, dan riwayat pesanan/pengiriman." />
 
-            <!-- Customer Info Card -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100 p-6">
-                <h3 class="font-poppins font-semibold text-lg text-gray-800 mb-4">Informasi Perusahaan</h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-sm text-gray-500">Nama Perusahaan</p>
-                        <p class="text-base font-medium text-gray-900">{{ $customer->company_name }}</p>
+        <!-- 3 Stats KPI Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="crm-card border-l-4 border-info">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total Pesanan</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format($customer->orders->count()) }}</p>
+            </div>
+            <div class="crm-card border-l-4 border-primary">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total Pengiriman</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format($customer->shipments->count()) }}</p>
+            </div>
+            <div class="crm-card border-l-4 border-success">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Kontak PIC</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format($customer->contacts->count()) }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Info Card (2 Cols) -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Customer Info -->
+                <div class="crm-card space-y-4">
+                    <div class="border-b border-gray-100 pb-3">
+                        <h2 class="font-poppins font-bold text-base text-gray-900">Informasi Perusahaan</h2>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Nama PIC</p>
-                        <p class="text-base font-medium text-gray-900">{{ $customer->name }}</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+                        <div>
+                            <p class="text-gray-400 font-medium">Nama Perusahaan</p>
+                            <p class="font-semibold text-gray-900 mt-0.5">{{ $customer->company_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 font-medium">Nama PIC Utama</p>
+                            <p class="font-semibold text-gray-900 mt-0.5">{{ $customer->name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 font-medium">Telepon / WA</p>
+                            <p class="font-semibold text-gray-900 mt-0.5">{{ $customer->phone }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 font-medium">Email</p>
+                            <p class="font-semibold text-gray-900 mt-0.5">{{ $customer->email ?? '-' }}</p>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <p class="text-gray-400 font-medium">Alamat Lengkap</p>
+                            <p class="font-semibold text-gray-900 mt-0.5">{{ $customer->address }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 font-medium">Kota & Provinsi</p>
+                            <p class="font-semibold text-gray-900 mt-0.5">{{ $customer->city }}, {{ $customer->province }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 font-medium">Kode Pos</p>
+                            <p class="font-semibold text-gray-900 mt-0.5">{{ $customer->postal_code ?? '-' }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Telepon</p>
-                        <p class="text-base font-medium text-gray-900">{{ $customer->phone }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Email</p>
-                        <p class="text-base font-medium text-gray-900">{{ $customer->email ?? '-' }}</p>
-                    </div>
-                    <div class="md:col-span-2">
-                        <p class="text-sm text-gray-500">Alamat</p>
-                        <p class="text-base font-medium text-gray-900">{{ $customer->address }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Kota / Provinsi</p>
-                        <p class="text-base font-medium text-gray-900">{{ $customer->city }}, {{ $customer->province }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Kode Pos</p>
-                        <p class="text-base font-medium text-gray-900">{{ $customer->postal_code ?? '-' }}</p>
-                    </div>
-                    @if($customer->notes)
-                    <div class="md:col-span-2">
-                        <p class="text-sm text-gray-500">Catatan</p>
-                        <p class="text-base text-gray-700">{{ $customer->notes }}</p>
-                    </div>
+
+                    @if ($customer->notes)
+                        <div class="pt-3 border-t border-gray-100">
+                            <p class="text-xs text-gray-400 font-medium">Catatan Khusus</p>
+                            <p class="text-xs text-gray-700 mt-1 bg-gray-50 p-2.5 rounded-btn border border-gray-100">{{ $customer->notes }}</p>
+                        </div>
                     @endif
                 </div>
-            </div>
 
-            <!-- User Account Info -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100 p-6">
-                <h3 class="font-poppins font-semibold text-lg text-gray-800 mb-4">Akun Login</h3>
-                
-                @if($customer->user)
-                    <div class="flex item-center gap-4">
-                        <div class="p-3 bg-green-100 rounded-full">
-                            <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Email Akun</p>
-                            <p class="text-base font-medium text-gray-900">{{ $customer->user->email }}</p>
-                            <p class="text-xs text-success mt-1">Aktif · Role: {{ $customer->user->role->label() }}</p>
-                        </div>
+                <!-- Recent Orders Table Card -->
+                <div class="crm-card p-0 overflow-hidden">
+                    <div class="p-4 border-b border-gray-100">
+                        <h2 class="font-poppins font-bold text-sm text-gray-900">Pesanan Terbaru</h2>
                     </div>
-                @else
-                    <div class="flex item-center gap-4">
-                        <div class="p-3 bg-gray-100 rounded-full">
-                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                        </div>
-                        <div>
-                            <p class="text-base font-medium text-gray-700">Belum ada akun login</p>
-                            <p class="text-xs text-gray-500 mt-1">Customer ini tidak dapat login ke portal.</p>
-                        </div>
+                    <div class="crm-table-container">
+                        <table class="crm-table">
+                            <thead>
+                                <tr>
+                                    <th>Nomor Order</th>
+                                    <th>Tanggal</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($customer->orders->take(5) as $order)
+                                    <tr>
+                                        <td class="font-bold text-gray-900">
+                                            <a href="{{ route('admin.orders.show', $order) }}" class="hover:text-primary transition">
+                                                {{ $order->order_number }}
+                                            </a>
+                                        </td>
+                                        <td class="text-xs text-gray-600">{{ $order->order_date ? $order->order_date->format('d M Y') : '-' }}</td>
+                                        <td>
+                                            <x-badge :status="$order->status" />
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="py-6 text-center text-xs text-gray-400">Belum ada data pesanan.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
-                @endif
-            </div>
-
-            <!-- Statistics -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white shadow-soft sm:rounded-card p-5 border-l-4 border-info">
-                    <p class="text-xs font-medium text-gray-500 uppercase">Total Pesanan</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $customer->orders->count() }}</p>
-                </div>
-                <div class="bg-white shadow-soft sm:rounded-card p-5 border-l-4 border-gray-400">
-                    <p class="text-xs font-medium text-gray-500 uppercase">Total Pengiriman</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $customer->shipments->count() }}</p>
-                </div>
-                <div class="bg-white shadow-soft sm:rounded-card p-5 border-l-4 border-success">
-                    <p class="text-xs font-medium text-gray-500 uppercase">Kontak</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $customer->contacts->count() }}</p>
                 </div>
             </div>
 
-            <!-- Recent Pesanan -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="font-poppins font-semibold text-lg text-gray-800">Recent Orders</h3>
+            <!-- Right Sidebar Card (1 Col) -->
+            <div class="space-y-6">
+                <!-- User Account Info Card -->
+                <div class="crm-card space-y-3">
+                    <h2 class="font-poppins font-bold text-sm text-gray-900 border-b border-gray-100 pb-2">Status Akun Portal</h2>
+                    
+                    @if($customer->user)
+                        <div class="flex items-center gap-3 p-3 rounded-btn bg-emerald-50 border border-emerald-100">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center text-xs shrink-0">
+                                ✓
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs font-bold text-gray-900 truncate">{{ $customer->user->email }}</p>
+                                <p class="text-[10px] text-emerald-700 font-semibold mt-0.5">Akun Portal Aktif</p>
+                            </div>
+                        </div>
+                    @else
+                        <div class="p-3 rounded-btn bg-gray-50 border border-gray-100 text-center">
+                            <p class="text-xs font-semibold text-gray-700">Belum Memiliki Akun Login</p>
+                            <p class="text-[11px] text-gray-400 mt-1">Customer belum dapat login ke portal.</p>
+                        </div>
+                    @endif
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nomor Pesanan</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($customer->orders->take(5) as $order)
+
+                <!-- Recent Shipments Overview -->
+                <div class="crm-card p-0 overflow-hidden">
+                    <div class="p-4 border-b border-gray-100">
+                        <h2 class="font-poppins font-bold text-sm text-gray-900">Pengiriman Terbaru</h2>
+                    </div>
+                    <div class="crm-table-container">
+                        <table class="crm-table">
+                            <thead>
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $order->order_number }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->order_date->format('d M Y') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge bg-gray-100 text-gray-600">
-                                            {{ $order->status->label() }}
-                                        </span>
-                                    </td>
+                                    <th>Shipment ID</th>
+                                    <th>Status</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="px-6 py-4 text-center text-gray-500">Belum ada order.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse($customer->shipments->take(5) as $shipment)
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('admin.shipments.show', $shipment) }}" class="font-bold text-xs text-gray-900 hover:text-primary transition">
+                                                {{ $shipment->shipment_number }}
+                                            </a>
+                                            <p class="text-[10px] text-gray-500 mt-0.5">{{ $shipment->origin }} → {{ $shipment->destination }}</p>
+                                        </td>
+                                        <td>
+                                            <x-badge :status="$shipment->status" />
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="py-6 text-center text-xs text-gray-400">Belum ada pengiriman.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-
-            <!-- Pengiriman Terbaru -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="font-poppins font-semibold text-lg text-gray-800">Pengiriman Terbaru</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pengiriman</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rute</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($customer->shipments->take(5) as $shipment)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $shipment->shipment_number }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $shipment->origin }} → {{ $shipment->destination }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $statusColor = match($shipment->status->value) {
-                                                'DRAFT' => 'bg-gray-100 text-gray-600',
-                                                'READY' => 'bg-blue-100 text-info',
-                                                'IN_TRANSIT' => 'bg-blue-100 text-info',
-                                                'ARRIVED' => 'bg-green-100 text-success',
-                                                'DELIVERED' => 'bg-green-100 text-success',
-                                                'DELAYED' => 'bg-yellow-100 text-yellow-700',
-                                                'CANCELLED' => 'bg-red-100 text-primary',
-                                                default => 'bg-gray-100 text-gray-600',
-                                            };
-                                        @endphp
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge {{ $statusColor }}">
-                                            {{ $shipment->status->label() }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="px-6 py-4 text-center text-gray-500">Belum ada shipment.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
+
     </div>
 </x-app-layout>

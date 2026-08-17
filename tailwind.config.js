@@ -16,29 +16,38 @@ export default {
                 poppins: ['Poppins', ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                // Palet Warna Logistics CRM
-                primary: '#D6453D',   // Red
-                cream: '#F5F1E6',     // Cream Background
-                warning: '#F2C94C',   // Yellow
-                success: '#168F4B',   // Green
-                info: '#2D5DA8',      // Blue
+                // Logistik CRM Color Palette
+                primary: '#D6453D',   // Primary Red
+                cream: '#F5F1E6',     // Cream Soft Background
+                warning: '#F2C94C',   // Yellow Warning
+                success: '#168F4B',   // Green Success
+                info: '#2D5DA8',      // Blue Info
                 
-                // Alias untuk kemudahan semantic
+                // Muted & Neutral Semantic Colors
+                body: '#111827',
+                muted: '#6B7280',
+                border: '#E5E7EB',
+                
+                // Semantic Brand Group
                 brand: {
                     red: '#D6453D',
                     cream: '#F5F1E6',
                     yellow: '#F2C94C',
                     green: '#168F4B',
                     blue: '#2D5DA8',
+                    dark: '#111827',
+                    muted: '#6B7280',
+                    border: '#E5E7EB',
                 }
             },
             borderRadius: {
-                'btn': '12px',    // Button & Input
-                'card': '20px',   // Card & Modal
-                'badge': '999px', // Badge pill
+                'btn': '12px',    // Buttons & Form Fields
+                'card': '20px',   // Cards & Modals
+                'badge': '999px', // Pill Badges
             },
             boxShadow: {
                 'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                'card': '0 10px 30px -5px rgba(0, 0, 0, 0.04)',
             }
         },
     },

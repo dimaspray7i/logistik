@@ -2,11 +2,129 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-    @apply bg-cream text-gray-800 font-sans antialiased;
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    body {
+        @apply bg-cream text-gray-900 font-sans antialiased selection:bg-primary/20 selection:text-primary;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-poppins text-gray-900 tracking-tight;
+    }
 }
 
-/* Helper untuk heading */
-h1, h2, h3, h4, h5, h6 {
-    @apply font-poppins;
+@layer components {
+    /* Design System Card */
+    .crm-card {
+        @apply bg-white rounded-card shadow-soft border border-gray-100 p-5 sm:p-6 transition-all duration-200;
+    }
+
+    .crm-card-interactive {
+        @apply crm-card hover:shadow-card hover:border-gray-200;
+    }
+
+    /* Design System Button Components */
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white font-medium text-sm rounded-btn shadow-sm hover:bg-[#c23a33] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 active:bg-[#a8312b] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-medium text-sm rounded-btn border border-gray-200 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 active:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white font-medium text-sm rounded-btn shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:ring-offset-2 active:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-gray-600 font-medium text-sm rounded-btn hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-150;
+    }
+
+    /* Status Badges — Centralized Color System */
+    .badge-pill {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold rounded-badge transition-colors whitespace-nowrap;
+    }
+
+    /* Ready & In Transit -> Blue */
+    .badge-ready {
+        @apply bg-blue-50 text-blue-700 border border-blue-200/80;
+    }
+
+    .badge-in-transit {
+        @apply bg-blue-50 text-blue-700 border border-blue-200/80;
+    }
+
+    /* Delivered & Arrived -> Green */
+    .badge-delivered {
+        @apply bg-emerald-50 text-emerald-700 border border-emerald-200/80;
+    }
+
+    .badge-arrived {
+        @apply bg-emerald-50 text-emerald-700 border border-emerald-200/80;
+    }
+
+    /* Pending & Delayed -> Orange / Amber */
+    .badge-pending {
+        @apply bg-amber-50 text-amber-800 border border-amber-200/80;
+    }
+
+    .badge-delayed {
+        @apply bg-amber-50 text-amber-800 border border-amber-200/80;
+    }
+
+    /* Cancelled -> Red */
+    .badge-cancelled {
+        @apply bg-red-50 text-red-700 border border-red-200/80;
+    }
+
+    /* Draft -> Gray */
+    .badge-draft {
+        @apply bg-gray-100 text-gray-600 border border-gray-200/80;
+    }
+
+    /* Form Controls */
+    .crm-input {
+        @apply w-full rounded-btn border-gray-200 text-sm text-gray-900 bg-white shadow-sm placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:bg-gray-50 disabled:text-gray-500 transition-all duration-150;
+    }
+
+    .crm-label {
+        @apply block text-sm font-medium text-gray-700 mb-1.5;
+    }
+
+    /* Tables */
+    .crm-table-container {
+        @apply w-full overflow-x-auto rounded-card border border-gray-100 bg-white shadow-soft;
+    }
+
+    .crm-table {
+        @apply min-w-full divide-y divide-gray-100 text-left text-sm text-gray-700;
+    }
+
+    .crm-table th {
+        @apply bg-gray-50/80 px-4 sm:px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500;
+    }
+
+    .crm-table td {
+        @apply px-4 sm:px-6 py-4 text-gray-900 transition-colors;
+    }
+
+    .crm-table tbody tr {
+        @apply hover:bg-gray-50/60 border-b border-gray-50 last:border-0;
+    }
+
+    /* Compact KPI Card — matching reference layout */
+    .kpi-card {
+        @apply bg-white rounded-[16px] shadow-soft border border-gray-100 p-4 transition-all duration-200 hover:shadow-card hover:border-gray-200;
+    }
+
+    .kpi-icon {
+        @apply w-8 h-8 rounded-btn flex items-center justify-center shrink-0;
+    }
+
+    .spark-bar {
+        @apply flex-1 rounded-sm transition-all duration-300;
+    }
 }

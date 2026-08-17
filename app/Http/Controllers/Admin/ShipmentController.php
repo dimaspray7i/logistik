@@ -38,7 +38,11 @@ class ShipmentController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            // Validate that the status value is a valid ShipmentStatus enum before filtering
+            $validStatus = collect(ShipmentStatus::cases())->map(fn($s) => $s->value)->contains($request->status);
+            if ($validStatus) {
+                $query->where('status', $request->status);
+            }
         }
 
         if ($request->filled('customer_id')) {

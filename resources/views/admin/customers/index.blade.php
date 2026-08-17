@@ -1,106 +1,102 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between item-center">
-            <h2 class="font-poppins font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Pelanggan') }}
-            </h2>
-            <a href="{{ route('admin.customers.create') }}" 
-               class="inline-flex item-center px-4 py-2 bg-primary border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition ease-in-out duration-150">
-                + Tambah Pelanggan
-            </a>
-        </div>
-    </x-slot>
+    <div class="space-y-6">
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <!-- Page Header -->
+        <x-page-header title="Pelanggan" description="Kelola data pelanggan perusahaan dan informasi kontak utama.">
+            <x-slot name="actions">
+                <a href="{{ route('admin.customers.create') }}" class="btn-primary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span>+ Tambah Pelanggan</span>
+                </a>
+            </x-slot>
+        </x-page-header>
 
-            <!-- Success/Error Message -->
-            @if (session('success'))
-                <div class="bg-green-50 border-l-4 border-success p-4 rounded-card">
-                    <p class="text-success font-medium">{{ session('success') }}</p>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="bg-red-50 border-l-4 border-primary p-4 rounded-card">
-                    <p class="text-primary font-medium">{{ session('error') }}</p>
-                </div>
-            @endif
-
-            <!-- Search Bar -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100 p-4">
-                <form method="GET" action="{{ route('admin.customers.index') }}" class="flex gap-4">
+        <!-- Search Bar Card -->
+        <div class="crm-card p-4">
+            <form method="GET" action="{{ route('admin.customers.index') }}" class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
                     <input type="text" name="search" value="{{ request('search') }}" 
-                           placeholder="Cari nama perusahaan, PIC, atau email..."
-                           class="flex-1 rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                    <button type="submit" 
-                            class="px-6 py-2 bg-primary text-white rounded-btn font-semibold hover:bg-red-700 transition">
-                        Search
-                    </button>
-                </form>
-            </div>
+                           placeholder="Cari nama perusahaan, PIC, email, atau kota..."
+                           class="crm-input pl-10">
+                </div>
+                <button type="submit" class="btn-secondary shrink-0">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    <span>Cari</span>
+                </button>
+            </form>
+        </div>
 
-            <!-- Customer Table -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIC</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kontak</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kota</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($customers as $customer)
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ $customer->company_name }}</div>
-                                        <div class="text-xs text-gray-500">{{ $customer->email ?? '-' }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">{{ $customer->name }}</div>
-                                        <div class="text-xs text-gray-500">{{ $customer->phone }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $customer->phone }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $customer->city }}, {{ $customer->province }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <a href="{{ route('admin.customers.show', $customer) }}" 
-                                           class="text-info hover:underline">Lihat</a>
-                                        <a href="{{ route('admin.customers.edit', $customer) }}" 
-                                           class="text-warning hover:underline">Ubah</a>
+        <!-- Customer Table Card -->
+        <div class="crm-card p-0 overflow-hidden">
+            <div class="crm-table-container">
+                <table class="crm-table">
+                    <thead>
+                        <tr>
+                            <th>Perusahaan</th>
+                            <th>PIC</th>
+                            <th>Kontak</th>
+                            <th>Kota / Provinsi</th>
+                            <th class="text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($customers as $customer)
+                            <tr class="hover:bg-gray-50/80 transition-colors">
+                                <td>
+                                    <div class="font-bold text-gray-900">{{ $customer->company_name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $customer->email ?? '-' }}</div>
+                                </td>
+                                <td>
+                                    <div class="font-medium text-gray-800">{{ $customer->name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $customer->phone }}</div>
+                                </td>
+                                <td class="text-xs text-gray-600">
+                                    {{ $customer->phone }}
+                                </td>
+                                <td class="text-xs text-gray-600">
+                                    {{ $customer->city }}, {{ $customer->province }}
+                                </td>
+                                <td class="text-right whitespace-nowrap">
+                                    <div class="inline-flex items-center gap-1.5">
+                                        <a href="{{ route('admin.customers.show', $customer) }}" title="Detail" class="p-1.5 rounded-btn text-gray-400 hover:text-info hover:bg-blue-50 transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </a>
+                                        <a href="{{ route('admin.customers.edit', $customer) }}" title="Ubah" class="p-1.5 rounded-btn text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        </a>
                                         <form action="{{ route('admin.customers.destroy', $customer) }}" 
                                               method="POST" class="inline"
-                                              onsubmit="return confirm('Yakin ingin menghapus customer ini?');">
+                                              onsubmit="return confirm('Yakin ingin menghapus data pelanggan ini?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-primary hover:underline">Hapus</button>
+                                            <button type="submit" title="Hapus" class="p-1.5 rounded-btn text-gray-400 hover:text-primary hover:bg-red-50 transition">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
                                         </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                                        Tidak ada data customer.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="px-6 py-4 border-t border-gray-100">
-                    {{ $customers->links() }}
-                </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="py-12 text-center text-gray-500">
+                                    <p class="text-sm">Tidak ada data pelanggan yang ditemukan.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
 
+            <!-- Pagination -->
+            @if ($customers->hasPages())
+                <div class="p-4 border-t border-gray-100 bg-white">
+                    {{ $customers->links() }}
+                </div>
+            @endif
         </div>
+
     </div>
-</x-app-layout>
+</x-app-layout>

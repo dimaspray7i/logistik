@@ -1,436 +1,346 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-poppins font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Detail Pengiriman') }}
-            </h2>
-            <div class="flex gap-2">
-                <a href="{{ route('admin.shipments.route.edit', $shipment) }}" 
-                   class="inline-flex items-center px-4 py-2 bg-info border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-600 transition">
-                    Kelola Rute
+    <div class="space-y-6">
+
+        <!-- Header Actions & Navigation -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <a href="{{ route('admin.shipments.index') }}" class="btn-ghost text-xs self-start">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <span>Kembali ke Daftar Pengiriman</span>
+            </a>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('admin.shipments.route.edit', $shipment) }}" class="btn-secondary">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5-4V4l5 4m0 0l6-4 5 4v12l-5-4m-6 4V8m6 12V8"></path></svg>
+                    <span>Kelola Rute</span>
                 </a>
-                <a href="{{ route('admin.shipments.edit', $shipment) }}" 
-                   class="inline-flex items-center px-4 py-2 bg-warning border border-transparent rounded-btn font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-600 transition">
-                    Ubah
-                </a>
-                <a href="{{ route('admin.shipments.index') }}" 
-                   class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-btn font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition">
-                    Kembali
+                <a href="{{ route('admin.shipments.edit', $shipment) }}" class="btn-secondary">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <span>Ubah Data</span>
                 </a>
             </div>
         </div>
-    </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ $shipment->shipment_number }}</h1>
+                    <x-badge :status="$shipment->status" />
+                </div>
+                <p class="text-sm text-gray-500 mt-1 font-normal">
+                    Rute: <span class="font-semibold text-gray-800">{{ $shipment->origin }} &rarr; {{ $shipment->destination }}</span>
+                </p>
+            </div>
+        </div>
 
-            @if (session('success'))
-                <div class="bg-green-50 border-l-4 border-success p-4 rounded-card">
-                    <p class="text-success font-medium">{{ session('success') }}</p>
+        <!-- 1. Informasi Utama Pengiriman Card -->
+        <div class="crm-card space-y-4">
+            <div class="border-b border-gray-100 pb-3">
+                <h2 class="font-poppins font-bold text-base text-gray-900">Informasi Pengiriman</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm">
+                <div>
+                    <p class="text-gray-400 font-medium">Pelanggan</p>
+                    <a href="{{ route('admin.customers.show', $shipment->customer_id) }}" class="font-bold text-info hover:underline mt-0.5 block">
+                        {{ $shipment->customer->company_name ?? '-' }}
+                    </a>
+                </div>
+                <div>
+                    <p class="text-gray-400 font-medium">Nomor Pesanan</p>
+                    <a href="{{ route('admin.orders.show', $shipment->order_id) }}" class="font-bold text-info hover:underline mt-0.5 block">
+                        {{ $shipment->order->order_number ?? '-' }}
+                    </a>
+                </div>
+                <div>
+                    <p class="text-gray-400 font-medium">Total Berat</p>
+                    <p class="font-semibold text-gray-900 mt-0.5">{{ number_format($shipment->total_weight, 0) }} Kg</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 font-medium">Kendaraan</p>
+                    <p class="font-semibold text-gray-900 mt-0.5">
+                        {{ $shipment->vehicle ? $shipment->vehicle->plate_number . ' (' . $shipment->vehicle->vehicle_type . ')' : 'Belum diassign' }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-gray-400 font-medium">Supir / Driver</p>
+                    <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->driver->name ?? 'Belum diassign' }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 font-medium">Tanggal Berangkat</p>
+                    <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->departure_date ? $shipment->departure_date->format('d M Y H:i') : '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 font-medium">Estimasi Tiba</p>
+                    <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->estimated_arrival ? $shipment->estimated_arrival->format('d M Y H:i') : '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-400 font-medium">Tiba Aktual</p>
+                    <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->actual_arrival ? $shipment->actual_arrival->format('d M Y H:i') : '-' }}</p>
+                </div>
+            </div>
+
+            @if ($shipment->notes)
+                <div class="pt-3 border-t border-gray-100">
+                    <p class="text-xs text-gray-400 font-medium">Catatan</p>
+                    <p class="text-xs text-gray-700 mt-1 bg-gray-50 p-2.5 rounded-btn border border-gray-100">{{ $shipment->notes }}</p>
                 </div>
             @endif
+        </div>
 
-            <!-- Kartu Info Pengiriman -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100 p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="font-poppins font-semibold text-lg text-gray-800">{{ $shipment->shipment_number }}</h3>
-                        <p class="text-sm text-gray-500 mt-1">{{ $shipment->origin }} → {{ $shipment->destination }}</p>
-                    </div>
-                    @php
-                        $statusColor = match($shipment->status->value) {
-                            'DRAFT' => 'bg-gray-100 text-gray-600',
-                            'READY' => 'bg-yellow-100 text-yellow-700',
-                            'IN_TRANSIT' => 'bg-blue-100 text-info',
-                            'ARRIVED', 'DELIVERED' => 'bg-green-100 text-success',
-                            'DELAYED' => 'bg-red-100 text-primary',
-                            'CANCELLED' => 'bg-gray-100 text-gray-600',
-                            default => 'bg-gray-100 text-gray-600',
-                        };
-                    @endphp
-                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-badge {{ $statusColor }}">
-                        {{ $shipment->status->label() }}
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 border-t pt-4">
-                    <div>
-                        <p class="text-sm text-gray-500">Customer</p>
-                        <a href="{{ route('admin.customers.show', $shipment->customer_id) }}" class="text-base font-medium text-info hover:underline">
-                            {{ $shipment->customer->company_name ?? '-' }}
-                        </a>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Order</p>
-                        <a href="{{ route('admin.orders.show', $shipment->order_id) }}" class="text-base font-medium text-info hover:underline">
-                            {{ $shipment->order->order_number ?? '-' }}
-                        </a>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Total Berat</p>
-                        <p class="text-base font-medium text-gray-900">{{ number_format($shipment->total_weight, 0) }} Kg</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Kendaraan</p>
-                        <p class="text-base font-medium text-gray-900">
-                            {{ $shipment->vehicle ? $shipment->vehicle->plate_number . ' (' . $shipment->vehicle->vehicle_type . ')' : 'Belum diassign' }}
-                        </p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Supir</p>
-                        <p class="text-base font-medium text-gray-900">{{ $shipment->driver->name ?? 'Belum diassign' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Tanggal Berangkat</p>
-                        <p class="text-base font-medium text-gray-900">{{ $shipment->departure_date ? $shipment->departure_date->format('d M Y H:i') : '-' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Estimasi Tiba</p>
-                        <p class="text-base font-medium text-gray-900">{{ $shipment->estimated_arrival ? $shipment->estimated_arrival->format('d M Y H:i') : '-' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Tiba Aktual</p>
-                        <p class="text-base font-medium text-gray-900">{{ $shipment->actual_arrival ? $shipment->actual_arrival->format('d M Y H:i') : '-' }}</p>
-                    </div>
-                    @if($shipment->notes)
-                    <div>
-                        <p class="text-sm text-gray-500">Catatan</p>
-                        <p class="text-base text-gray-700">{{ $shipment->notes }}</p>
-                    </div>
-                    @endif
-                </div>
+        <!-- 2. Item Pengiriman Table Card -->
+        <div class="crm-card p-0 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <h2 class="font-poppins font-bold text-sm text-gray-900">Item Pengiriman</h2>
             </div>
-
-            <!-- Tabel Item Pengiriman -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="font-poppins font-semibold text-lg text-gray-800">Item Pengiriman</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+            <div class="crm-table-container">
+                <table class="crm-table">
+                    <thead>
+                        <tr>
+                            <th>Produk</th>
+                            <th>SKU</th>
+                            <th>Jumlah</th>
+                            <th>Berat (Kg)</th>
+                            <th>Satuan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($shipment->items as $item)
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Berat</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satuan</th>
+                                <td class="font-bold text-gray-900">{{ $item->product->name ?? '-' }}</td>
+                                <td>
+                                    <span class="px-2 py-0.5 text-xs font-semibold rounded-badge bg-gray-100 text-gray-700">{{ $item->product->sku ?? '-' }}</span>
+                                </td>
+                                <td class="text-xs text-gray-800 font-medium">{{ $item->quantity }}</td>
+                                <td class="text-xs text-gray-800 font-medium">{{ number_format($item->weight, 2) }}</td>
+                                <td class="text-xs text-gray-600">{{ $item->unit }}</td>
                             </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($shipment->items as $item)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $item->product->name ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge bg-blue-100 text-info">{{ $item->product->sku ?? '-' }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->quantity }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($item->weight, 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->unit }}</td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Tidak ada item.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr><td colspan="5" class="py-6 text-center text-xs text-gray-400">Tidak ada item pengiriman.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 3. Rencana Rute Stepper Card -->
+        <div class="crm-card">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                <h2 class="font-poppins font-bold text-base text-gray-900">Rencana Rute & Perjalanan</h2>
+                @if($shipment->route)
+                    <span class="text-xs text-gray-500 font-medium">
+                        @if($shipment->route->distance) {{ number_format($shipment->route->distance, 0) }} Km &middot; @endif
+                        @if($shipment->route->duration) {{ $shipment->route->duration }} Jam @endif
+                    </span>
+                @endif
             </div>
 
-            <!-- Rencana Rute -->
-            <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                    <h3 class="font-poppins font-semibold text-lg text-gray-800">Rencana Rute</h3>
-                    @if($shipment->route)
-                        <span class="text-xs text-gray-500">
-                            @if($shipment->route->distance) {{ number_format($shipment->route->distance, 0) }} Km · @endif
-                            @if($shipment->route->duration) {{ $shipment->route->duration }} Jam @endif
-                        </span>
-                    @endif
+            @if($shipment->route && $shipment->route->points->count() > 0)
+                <div class="space-y-0 relative pl-4 border-l-2 border-gray-200">
+                    @foreach($shipment->route->points as $point)
+                        <div class="relative pl-6 pb-6 last:pb-0">
+                            <span class="absolute -left-[25px] top-0 w-6 h-6 rounded-full {{ $point->status === 'ARRIVED' ? 'bg-success' : ($loop->first ? 'bg-primary' : 'bg-info') }} text-white text-[11px] font-bold flex items-center justify-center ring-4 ring-white">
+                                {{ $loop->iteration }}
+                            </span>
+                            <div>
+                                <p class="text-xs font-bold text-gray-900">{{ $point->location_name }}</p>
+                                @if($point->address)
+                                    <p class="text-[11px] text-gray-500 mt-0.5">{{ $point->address }}</p>
+                                @endif
+                                <p class="text-[11px] font-semibold mt-1 {{ $point->status === 'ARRIVED' ? 'text-success' : 'text-info' }}">
+                                    @if($point->actual_arrival)
+                                        Tiba: {{ $point->actual_arrival->format('d M Y H:i') }}
+                                    @elseif($point->estimated_arrival)
+                                        Estimasi: {{ $point->estimated_arrival->format('d M Y H:i') }}
+                                    @else
+                                        Menunggu Status
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                <div class="p-6">
-                    @if($shipment->route && $shipment->route->points->count() > 0)
-                        <div class="space-y-0">
-                            @foreach($shipment->route->points as $point)
-                                <div class="flex gap-4">
-                                    <div class="flex flex-col items-center">
-                                        <div class="w-8 h-8 rounded-full {{ $point->status === 'ARRIVED' ? 'bg-success' : ($loop->first ? 'bg-primary' : 'bg-info') }} text-white text-xs font-bold flex items-center justify-center">
-                                            {{ $loop->iteration }}
+            @else
+                <div class="py-6 text-center text-gray-400 text-xs">
+                    Belum ada rencana rute tersimpan. Klik tombol <a href="{{ route('admin.shipments.route.edit', $shipment) }}" class="text-info underline">Kelola Rute</a> untuk membuat rute baru.
+                </div>
+            @endif
+        </div>
+
+        <!-- 4. Riwayat Tracking & Form Update -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Timeline Tracking Card -->
+            <div class="crm-card space-y-4">
+                <div class="border-b border-gray-100 pb-3 flex items-center justify-between">
+                    <h2 class="font-poppins font-bold text-base text-gray-900">Riwayat Tracking Live</h2>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                </div>
+
+                @php $trackings = $shipment->trackingUpdates->sortBy('tracked_at'); @endphp
+                @if($trackings->count() > 0)
+                    <div class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
+                        @foreach($trackings as $tracking)
+                            <div class="relative">
+                                @php
+                                    $dotBg = match($tracking->status->value) {
+                                        'IN_TRANSIT' => 'bg-info',
+                                        'ARRIVED', 'DELIVERED' => 'bg-success',
+                                        'DELAYED' => 'bg-primary',
+                                        default => 'bg-gray-400',
+                                    };
+                                @endphp
+                                <span class="absolute -left-6 top-1 w-4 h-4 rounded-full border-2 border-white ring-2 ring-gray-100 {{ $dotBg }}"></span>
+                                
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-900">{{ $tracking->location }}</p>
+                                        <div class="mt-1">
+                                            <x-badge :status="$tracking->status" />
                                         </div>
-                                        @unless($loop->last)
-                                            <div class="w-0.5 h-12 bg-gray-200"></div>
-                                        @endunless
-                                    </div>
-                                    <div class="pb-6">
-                                        <p class="text-sm font-semibold text-gray-900">{{ $point->location_name }}</p>
-                                        @if($point->address)
-                                            <p class="text-xs text-gray-500">{{ $point->address }}</p>
+                                        @if($tracking->description)
+                                            <p class="text-xs text-gray-600 mt-1 bg-gray-50 p-2 rounded-btn border border-gray-100">{{ $tracking->description }}</p>
                                         @endif
-                                        <p class="text-xs mt-1 {{ $point->status === 'ARRIVED' ? 'text-success' : 'text-info' }}">
-                                            @if($point->actual_arrival)
-                                                Tiba: {{ $point->actual_arrival->format('d M Y H:i') }}
-                                            @elseif($point->estimated_arrival)
-                                                Estimasi: {{ $point->estimated_arrival->format('d M Y H:i') }}
-                                            @else
-                                                Menunggu
-                                            @endif
+                                        <p class="text-[10px] text-gray-400 mt-1">
+                                            {{ $tracking->tracked_at->format('d M Y H:i') }} &middot; {{ $tracking->user->name ?? 'Sistem' }}
+                                        </p>
+                                    </div>
+                                    <form action="{{ route('admin.shipments.tracking.destroy', [$shipment, $tracking]) }}" method="POST"
+                                          onsubmit="return confirm('Hapus update tracking ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1 text-gray-400 hover:text-primary transition" title="Hapus">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-center text-xs text-gray-400 py-6">Belum ada riwayat tracking.</p>
+                @endif
+            </div>
+
+            <!-- Form Tambah Tracking Card -->
+            <div class="crm-card space-y-4">
+                <div class="border-b border-gray-100 pb-3">
+                    <h2 class="font-poppins font-bold text-base text-gray-900">Tambah Update Tracking</h2>
+                    <p class="text-xs text-gray-500">Perbarui posisi dan status fisik barang pengiriman.</p>
+                </div>
+
+                <form method="POST" action="{{ route('admin.shipments.tracking.store', $shipment) }}" class="space-y-4">
+                    @csrf
+
+                    <div>
+                        <label for="status" class="crm-label">Status <span class="text-primary">*</span></label>
+                        <select id="status" name="status" required class="crm-input">
+                            @foreach (\App\Enums\ShipmentStatus::cases() as $status)
+                                <option value="{{ $status->value }}" @selected(old('status') == $status->value)>{{ $status->label() }}</option>
+                            @endforeach
+                        </select>
+                        @error('status') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="location" class="crm-label">Lokasi <span class="text-primary">*</span></label>
+                        <input id="location" type="text" name="location" value="{{ old('location') }}" placeholder="Contoh: Hub Cikampek" required class="crm-input">
+                        @error('location') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="description" class="crm-label">Keterangan Catatan</label>
+                        <textarea id="description" name="description" rows="2" placeholder="Catatan posisi atau kondisi..." class="crm-input">{{ old('description') }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary w-full">
+                        + Simpan Update Tracking
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- 5. Dokumen Pengiriman & Upload Form -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Daftar Dokumen Card -->
+            <div class="crm-card space-y-4">
+                <div class="border-b border-gray-100 pb-3">
+                    <h2 class="font-poppins font-bold text-base text-gray-900">Dokumen Pengiriman</h2>
+                </div>
+
+                @if($shipment->documents->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($shipment->documents as $document)
+                            <div class="flex items-center justify-between p-3 rounded-card border border-gray-100 bg-gray-50">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-9 h-9 rounded-btn bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-bold text-gray-900 truncate">{{ $document->title }}</p>
+                                        <p class="text-[10px] text-gray-500">
+                                            {{ $document->type->label() }} &middot; {{ number_format($document->size / 1024, 0) }} KB
                                         </p>
                                     </div>
                                 </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank" class="btn-ghost text-xs text-info px-2 py-1">
+                                        Lihat
+                                    </a>
+                                    <form action="{{ route('admin.shipments.documents.destroy', [$shipment, $document]) }}" method="POST"
+                                          onsubmit="return confirm('Hapus dokumen ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-ghost text-xs text-primary px-2 py-1">Hapus</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-center text-xs text-gray-400 py-6">Belum ada dokumen yang diunggah.</p>
+                @endif
+            </div>
+
+            <!-- Form Upload Dokumen Card -->
+            <div class="crm-card space-y-4">
+                <div class="border-b border-gray-100 pb-3">
+                    <h2 class="font-poppins font-bold text-base text-gray-900">Unggah Dokumen Baru</h2>
+                </div>
+
+                <form method="POST" action="{{ route('admin.shipments.documents.store', $shipment) }}" enctype="multipart/form-data" class="space-y-4">
+                    @csrf
+
+                    <div>
+                        <label for="doc_title" class="crm-label">Judul Dokumen <span class="text-primary">*</span></label>
+                        <input id="doc_title" type="text" name="title" value="{{ old('title') }}" placeholder="Contoh: Surat Jalan TTD / Invoice" required class="crm-input">
+                        @error('title') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="doc_type" class="crm-label">Tipe Dokumen <span class="text-primary">*</span></label>
+                        <select id="doc_type" name="type" required class="crm-input">
+                            @foreach (\App\Enums\DocumentType::cases() as $type)
+                                <option value="{{ $type->value }}" @selected(old('type') == $type->value)>{{ $type->label() }}</option>
                             @endforeach
-                        </div>
-                    @else
-                        <p class="text-center text-gray-500 py-4">Belum ada rencana rute. Klik "Kelola Rute" untuk membuat.</p>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Riwayat Tracking + Form Tambah -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                <!-- Timeline Tracking -->
-                <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                    <div class="px-6 py-4 border-b border-gray-100">
-                        <h3 class="font-poppins font-semibold text-lg text-gray-800">Riwayat Tracking</h3>
+                        </select>
+                        @error('type') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
-                    <div class="p-6">
-                        @php $trackings = $shipment->trackingUpdates->sortBy('tracked_at'); @endphp
-                        @if($trackings->count() > 0)
-                            <div class="space-y-0">
-                                @foreach($trackings as $tracking)
-                                    <div class="flex gap-4">
-                                        <div class="flex flex-col items-center">
-                                            @php
-                                                $dotColor = match($tracking->status->value) {
-                                                    'IN_TRANSIT' => 'bg-info',
-                                                    'ARRIVED', 'DELIVERED' => 'bg-success',
-                                                    'DELAYED' => 'bg-primary',
-                                                    default => 'bg-gray-400',
-                                                };
-                                            @endphp
-                                            <div class="w-4 h-4 rounded-full {{ $dotColor }} mt-1"></div>
-                                            @unless($loop->last)
-                                                <div class="w-0.5 h-14 bg-gray-200"></div>
-                                            @endunless
-                                        </div>
-                                        <div class="pb-6 flex-1">
-                                            <div class="flex justify-between items-start">
-                                                <div>
-                                                    <p class="text-sm font-semibold text-gray-900">{{ $tracking->location }}</p>
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-badge {{ match($tracking->status->value) {
-                                                        'IN_TRANSIT' => 'bg-blue-100 text-info',
-                                                        'ARRIVED', 'DELIVERED' => 'bg-green-100 text-success',
-                                                        'DELAYED' => 'bg-red-100 text-primary',
-                                                        default => 'bg-gray-100 text-gray-600',
-                                                    } }}">
-                                                        {{ $tracking->status->label() }}
-                                                    </span>
-                                                    @if($tracking->description)
-                                                        <p class="text-xs text-gray-500 mt-1">{{ $tracking->description }}</p>
-                                                    @endif
-                                                    <p class="text-xs text-gray-400 mt-1">
-                                                        {{ $tracking->tracked_at->format('d M Y H:i') }} · oleh {{ $tracking->user->name ?? 'Sistem' }}
-                                                    </p>
-                                                </div>
-                                                <form action="{{ route('admin.shipments.tracking.destroy', [$shipment, $tracking]) }}" method="POST"
-                                                      onsubmit="return confirm('Hapus update tracking ini?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-xs text-primary hover:underline">Hapus</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <p class="text-center text-gray-500 py-4">Belum ada update tracking.</p>
-                        @endif
+
+                    <div>
+                        <label for="doc_file" class="crm-label">Pilih File (PDF, JPG, PNG) <span class="text-primary">*</span></label>
+                        <input id="doc_file" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required class="crm-input text-xs">
+                        @error('file') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
-                </div>
 
-                <!-- Form Tambah Tracking -->
-                <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                    <div class="px-6 py-4 border-b border-gray-100">
-                        <h3 class="font-poppins font-semibold text-lg text-gray-800">Tambah Update Tracking</h3>
-                    </div>
-                    <div class="p-6">
-                        <form method="POST" action="{{ route('admin.shipments.tracking.store', $shipment) }}" class="space-y-4">
-                            @csrf
-
-                            <div>
-                                <label for="status" class="block text-sm font-medium text-gray-700">Status <span class="text-primary">*</span></label>
-                                <select id="status" name="status" required
-                                        class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                    @foreach (\App\Enums\ShipmentStatus::cases() as $status)
-                                        <option value="{{ $status->value }}" @selected(old('status') == $status->value)>{{ $status->label() }}</option>
-                                    @endforeach
-                                </select>
-                                @error('status') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                            </div>
-
-                            <div>
-                                <label for="location" class="block text-sm font-medium text-gray-700">Lokasi <span class="text-primary">*</span></label>
-                                <input id="location" type="text" name="location" value="{{ old('location') }}" placeholder="Contoh: Pool Pekanbaru" required
-                                       class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                @error('location') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                            </div>
-
-                            <div>
-                                <label for="description" class="block text-sm font-medium text-gray-700">Keterangan</label>
-                                <textarea id="description" name="description" rows="2"
-                                          class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">{{ old('description') }}</textarea>
-                            </div>
-
-                            @if($shipment->route && $shipment->route->points->count() > 0)
-                            <div>
-                                <label for="route_point_id" class="block text-sm font-medium text-gray-700">Hubungkan ke Titik Rute (opsional)</label>
-                                <select id="route_point_id" name="route_point_id"
-                                        class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                    <option value="">-- Tidak dihubungkan --</option>
-                                    @foreach($shipment->route->points as $point)
-                                        <option value="{{ $point->id }}" @selected(old('route_point_id') == $point->id)>
-                                            {{ $point->sequence }}. {{ $point->location_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @endif
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="latitude" class="block text-sm font-medium text-gray-700">Latitude</label>
-                                    <input id="latitude" type="number" step="any" name="latitude" value="{{ old('latitude') }}"
-                                           class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                </div>
-                                <div>
-                                    <label for="longitude" class="block text-sm font-medium text-gray-700">Longitude</label>
-                                    <input id="longitude" type="number" step="any" name="longitude" value="{{ old('longitude') }}"
-                                           class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label for="tracked_at" class="block text-sm font-medium text-gray-700">Waktu Tracking (kosongkan = sekarang)</label>
-                                <input id="tracked_at" type="datetime-local" name="tracked_at" value="{{ old('tracked_at') }}"
-                                       class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                            </div>
-
-                            <button type="submit" class="w-full px-6 py-2 bg-primary text-white rounded-btn font-semibold hover:bg-red-700 transition">
-                                Tambah Tracking
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Dokumen Pengiriman -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                <!-- Daftar Dokumen -->
-                <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                    <div class="px-6 py-4 border-b border-gray-100">
-                        <h3 class="font-poppins font-semibold text-lg text-gray-800">Dokumen Pengiriman</h3>
-                    </div>
-                    <div class="p-6">
-                        @if($shipment->documents->count() > 0)
-                            <div class="space-y-3">
-                                @foreach($shipment->documents as $document)
-                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-card border border-gray-100">
-                                        <div class="flex items-center gap-3 min-w-0">
-                                            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                                @if(str_starts_with($document->mime_type, 'image/'))
-                                                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                @else
-                                                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                                @endif
-                                            </div>
-                                            <div class="min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 truncate">{{ $document->title }}</p>
-                                                <p class="text-xs text-gray-500">
-                                                    <span class="px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{ $document->type->label() }}</span>
-                                                    · {{ number_format($document->size / 1024, 0) }} KB
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-2 flex-shrink-0">
-                                            <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank"
-                                               class="text-info text-sm hover:underline">Lihat</a>
-                                            <form action="{{ route('admin.shipments.documents.destroy', [$shipment, $document]) }}" method="POST"
-                                                  onsubmit="return confirm('Hapus dokumen ini?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-primary text-sm hover:underline">Hapus</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <p class="text-center text-gray-500 py-4">Belum ada dokumen.</p>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Form Upload Dokumen -->
-                <div class="bg-white overflow-hidden shadow-soft sm:rounded-card border border-gray-100">
-                    <div class="px-6 py-4 border-b border-gray-100">
-                        <h3 class="font-poppins font-semibold text-lg text-gray-800">Unggah Dokumen</h3>
-                    </div>
-                    <div class="p-6">
-                        <form method="POST" action="{{ route('admin.shipments.documents.store', $shipment) }}" enctype="multipart/form-data" class="space-y-4">
-                            @csrf
-
-                            <div>
-                                <label for="doc_title" class="block text-sm font-medium text-gray-700">Judul Dokumen <span class="text-primary">*</span></label>
-                                <input id="doc_title" type="text" name="title" value="{{ old('title') }}" placeholder="Contoh: Resi JNE 00123" required
-                                       class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                @error('title') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                            </div>
-
-                            <div>
-                                <label for="doc_type" class="block text-sm font-medium text-gray-700">Tipe Dokumen <span class="text-primary">*</span></label>
-                                <select id="doc_type" name="type" required
-                                        class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                    @foreach (\App\Enums\DocumentType::cases() as $type)
-                                        <option value="{{ $type->value }}" @selected(old('type') == $type->value)>{{ $type->label() }}</option>
-                                    @endforeach
-                                </select>
-                                @error('type') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                            </div>
-
-                            <div>
-                                <label for="doc_file" class="block text-sm font-medium text-gray-700">File <span class="text-primary">*</span></label>
-                                <input id="doc_file" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required
-                                       class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-btn file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-red-700">
-                                <p class="text-xs text-gray-400 mt-1">PDF, JPG, atau PNG. Maksimal 5MB.</p>
-                                @error('file') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                            </div>
-
-                            @if($shipment->trackingUpdates->count() > 0)
-                            <div>
-                                <label for="doc_tracking" class="block text-sm font-medium text-gray-700">Hubungkan ke Tracking (opsional)</label>
-                                <select id="doc_tracking" name="tracking_update_id"
-                                        class="mt-1 block w-full rounded-btn border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
-                                    <option value="">-- Tidak dihubungkan --</option>
-                                    @foreach($shipment->trackingUpdates->sortByDesc('tracked_at') as $tracking)
-                                        <option value="{{ $tracking->id }}" @selected(old('tracking_update_id') == $tracking->id)>
-                                            {{ $tracking->tracked_at->format('d M Y H:i') }} — {{ $tracking->location }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @endif
-
-                            <button type="submit" class="w-full px-6 py-2 bg-primary text-white rounded-btn font-semibold hover:bg-red-700 transition">
-                                Unggah Dokumen
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
+                    <button type="submit" class="btn-primary w-full">
+                        + Upload Dokumen
+                    </button>
+                </form>
             </div>
 
         </div>
+
     </div>
-</x-app-layout>
+</x-app-layout>
