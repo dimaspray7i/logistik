@@ -4,93 +4,70 @@ namespace App\Http\Controllers\Customer;
 
 use App\Enums\ShipmentStatus;
 use App\Http\Controllers\Controller;
-use App\Models\TrackingUpdate;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $user     = auth()->user();
+        $user = auth()->user();
         $customer = $user->customer;
 
-        // ---------------------------------------------------------------
-        // KPI — semua query terisolasi ke customer login (server-side)
-        // ---------------------------------------------------------------
-        $totalOrders    = $customer->orders()->count();
-        $totalShipments = $customer->shipments()->count();
-        $inTransit      = $customer->shipments()->where('status', ShipmentStatus::IN_TRANSIT)->count();
-        $delivered      = $customer->shipments()->where('status', ShipmentStatus::DELIVERED)->count();
-        $delayed        = $customer->shipments()->where('status', ShipmentStatus::DELAYED)->count();
-        $totalWeight    = $customer->shipments()->sum('total_weight');
-
+        // Statistik scoped per customer
         $stats = [
-            'my_orders'      => $totalOrders,
-            'my_shipments'   => $totalShipments,
-            'in_transit'     => $inTransit,
-            'delivered'      => $delivered,
-            'delayed'        => $delayed,
-            'total_weight'   => $totalWeight,
+            'my_orders'    => $customer->orders()->count(),
+            'my_shipments' => $customer->shipments()->count(),
+            'in_transit'   => $customer->shipments()->where('status', ShipmentStatus::IN_TRANSIT)->count(),
+            'delivered'    => $customer->shipments()->where('status', ShipmentStatus::DELIVERED)->count(),
+            'delayed'      => $customer->shipments()->where('status', ShipmentStatus::DELAYED)->count(),
         ];
 
-        // ---------------------------------------------------------------
-        // Recent Shipments — eager-load route untuk origin/destination
-        // ---------------------------------------------------------------
-        $recentShipments = $customer->shipments()
-            ->with(['route.points'])
+        $recentShipments = $customer->shipments()->latest()->take(5)->get();
+
+        // Live tracking: shipment IN_TRANSIT terbaru milik customer
+        $liveTracking = $customer->shipments()
+            ->where('status', ShipmentStatus::IN_TRANSIT)
             ->latest()
-            ->take(6)
-            ->get();
+            ->first();
 
-        // ---------------------------------------------------------------
-        // Recent Orders — order terbaru customer ini
-        // ---------------------------------------------------------------
-        $recentOrders = $customer->orders()
-            ->withCount('items')
-            ->latest('order_date')
-            ->take(5)
-            ->get();
+        // Grafik riwayat pengiriman 6 bulan terakhir (scoped per customer)
+        $monthlyChart = $this->buildMonthlyChart($customer->id);
 
-        // ---------------------------------------------------------------
-        // Live Tracking — tracking update dari shipment milik customer ini
-        // Subquery memastikan tracking tidak bocor ke customer lain
-        // ---------------------------------------------------------------
-        $customerShipmentIds = $customer->shipments()->pluck('id');
+        return view('customer.dashboard', compact('customer', 'stats', 'recentShipments', 'liveTracking', 'monthlyChart'));
+    }
 
-        $recentTracking = TrackingUpdate::whereIn('shipment_id', $customerShipmentIds)
-            ->with(['shipment'])
-            ->latest('tracked_at')
-            ->take(6)
-            ->get();
+    private function buildMonthlyChart(int $customerId): array
+    {
+        $months = [];
+        $labels = [];
 
-        // ---------------------------------------------------------------
-        // Monthly Chart — 6 bulan terakhir, terisolasi ke customer ini
-        // ---------------------------------------------------------------
-        $monthlyData = [];
         for ($i = 5; $i >= 0; $i--) {
-            $date  = Carbon::now()->subMonths($i);
-            $count = $customer->shipments()
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
+            $start = now()->subMonths($i)->startOfMonth();
+            $end = now()->subMonths($i)->endOfMonth();
+
+            $count = DB::table('shipments')
+                ->where('customer_id', $customerId)
+                ->whereBetween('created_at', [$start, $end])
                 ->count();
 
-            $monthlyData[] = [
-                'month' => $date->locale('id')->isoFormat('MMM'),
-                'year'  => $date->year,
-                'count' => $count,
-            ];
+            $months[] = $count;
+            $labels[] = $start->format('M Y');
         }
-        $chartMax = max(array_column($monthlyData, 'count') ?: [1]);
 
-        return view('customer.dashboard', compact(
-            'customer',
-            'stats',
-            'recentShipments',
-            'recentOrders',
-            'recentTracking',
-            'monthlyData',
-            'chartMax'
-        ));
+        $total = array_sum($months);
+        $average = round($total / 6, 1);
+        $highest = max($months);
+        $currentMonth = $months[5];
+        $previousMonth = $months[4];
+        $trend = $previousMonth > 0 ? round((($currentMonth - $previousMonth) / $previousMonth) * 100, 0) : 0;
+
+        return [
+            'labels' => $labels,
+            'data' => $months,
+            'total' => $total,
+            'average' => $average,
+            'highest' => $highest,
+            'trend' => $trend,
+        ];
     }
 }

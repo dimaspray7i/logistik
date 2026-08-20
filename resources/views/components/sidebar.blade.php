@@ -75,12 +75,29 @@
                 </div>
             </div>
         @else
-            <!-- CUSTOMER PORTAL -->
+            <!-- UTAMA PELANGGAN -->
             <div>
-                <p class="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Portal Customer</p>
+                <p class="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Utama</p>
                 <div class="space-y-1">
-                    <x-admin-nav-link href="{{ route('customer.dashboard') }}" :active="request()->routeIs('customer.dashboard')" :icon="'<svg fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6\'></path></svg>'">Dasbor Saya</x-admin-nav-link>
-                    <x-admin-nav-link href="{{ route('profile.edit') }}" :active="request()->routeIs('profile.*')" :icon="'<svg fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\'></path></svg>'">Profil Saya</x-admin-nav-link>
+                    <x-admin-nav-link href="{{ route('customer.dashboard') }}" :active="request()->routeIs('customer.dashboard')" :icon="'<svg fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6\'></path></svg>'">Dasbor</x-admin-nav-link>
+                </div>
+            </div>
+
+            <!-- LOGISTIK SAYA -->
+            <div>
+                <p class="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Logistik Saya</p>
+                <div class="space-y-1">
+                    <x-admin-nav-link href="{{ route('customer.orders.index') }}" :active="request()->routeIs('customer.orders.*')" :icon="'<svg fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2\'></path></svg>'">Pesanan Saya</x-admin-nav-link>
+                    <x-admin-nav-link href="{{ route('customer.shipments.index') }}" :active="request()->routeIs('customer.shipments.*')" :icon="'<svg fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0\'></path></svg>'">Pengiriman</x-admin-nav-link>
+                </div>
+            </div>
+
+            <!-- AKUN & PROFIL -->
+            <div>
+                <p class="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Akun & Profil</p>
+                <div class="space-y-1">
+                    <x-admin-nav-link href="{{ route('customer.profile.edit') }}" :active="request()->routeIs('customer.profile.*')" :icon="'<svg fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4\'></path></svg>'">Profil Perusahaan</x-admin-nav-link>
+                    <x-admin-nav-link href="{{ route('profile.edit') }}" :active="request()->routeIs('profile.*')" :icon="'<svg fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\'></path></svg>'">Pengaturan Akun</x-admin-nav-link>
                 </div>
             </div>
         @endif
