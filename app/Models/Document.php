@@ -14,6 +14,13 @@ class Document extends Model
         'shipment_id', 'tracking_update_id', 'user_id', 'file_path', 'file_name', 'mime_type', 'file_size', 'type'
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'type' => \App\Enums\DocumentType::class,
+        ];
+    }
+
     public function shipment(): BelongsTo
     {
         return $this->belongsTo(Shipment::class);

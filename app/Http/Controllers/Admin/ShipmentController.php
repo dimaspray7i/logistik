@@ -117,6 +117,13 @@ class ShipmentController extends Controller
             if ($request->vehicle_id && in_array($request->status, ['READY', 'IN_TRANSIT'])) {
                 Vehicle::where('id', $request->vehicle_id)->update(['status' => 'IN_USE']);
             }
+
+            \Illuminate\Support\Facades\Log::info('Admin: Shipment created', [
+                'admin_id' => auth()->id(),
+                'shipment_id' => $shipment->id,
+                'shipment_number' => $shipment->shipment_number,
+                'customer_id' => $shipment->customer_id,
+            ]);
         });
 
         return redirect()->route('admin.shipments.index')
@@ -180,6 +187,13 @@ class ShipmentController extends Controller
             if ($newVehicleId && in_array($request->status, ['READY', 'IN_TRANSIT'])) {
                 Vehicle::where('id', $newVehicleId)->update(['status' => 'IN_USE']);
             }
+
+            \Illuminate\Support\Facades\Log::info('Admin: Shipment updated', [
+                'admin_id' => auth()->id(),
+                'shipment_id' => $shipment->id,
+                'shipment_number' => $shipment->shipment_number,
+                'status' => $shipment->status?->value ?? $shipment->status,
+            ]);
         });
 
         return redirect()->route('admin.shipments.index')
@@ -207,7 +221,16 @@ class ShipmentController extends Controller
             }
         }
 
+        $shipmentId = $shipment->id;
+        $shipmentNumber = $shipment->shipment_number;
+
         $shipment->delete();
+
+        \Illuminate\Support\Facades\Log::info('Admin: Shipment deleted', [
+            'admin_id' => auth()->id(),
+            'shipment_id' => $shipmentId,
+            'shipment_number' => $shipmentNumber,
+        ]);
 
         return redirect()->route('admin.shipments.index')
             ->with('success', 'Pengiriman berhasil dihapus.');

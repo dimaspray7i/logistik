@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web(append: [
+            \App\Http\Middleware\SetSecurityHeaders::class,
+        ]);
+
         $middleware->alias([
             'role.admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'role.customer' => \App\Http\Middleware\EnsureUserIsCustomer::class,

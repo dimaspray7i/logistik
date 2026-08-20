@@ -76,6 +76,13 @@ class OrderController extends Controller
             foreach ($request->items as $item) {
                 $order->items()->create($item);
             }
+
+            \Illuminate\Support\Facades\Log::info('Admin: Order created', [
+                'admin_id' => auth()->id(),
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer_id' => $order->customer_id,
+            ]);
         });
 
         return redirect()->route('admin.orders.index')
@@ -117,17 +124,23 @@ class OrderController extends Controller
             $existingItemIds = $order->items()->pluck('id')->toArray();
             $incomingItemIds = collect($request->items)->pluck('id')->filter()->toArray();
 
-            // Hapus item yang tidak ada di request
-            $toDelete = array_diff($existingItemIds, $incomingItemIds);
-            if (!empty($toDelete)) {
-                OrderItem::whereIn('id', $toDelete)->delete();
+            // Keamanan: Validasi bahwa semua ID item yang dikirim memang milik order ini (mencegah IDOR item)
+            $invalidItemIds = array_diff($incomingItemIds, $existingItemIds);
+            if (!empty($invalidItemIds)) {
+                abort(403, 'Terdapat item pesanan yang tidak valid untuk pesanan ini.');
             }
 
-            // Update atau create
+            // Hapus item yang tidak ada di request (scoped ke order)
+            $toDelete = array_diff($existingItemIds, $incomingItemIds);
+            if (!empty($toDelete)) {
+                $order->items()->whereIn('id', $toDelete)->delete();
+            }
+
+            // Update atau create (scoped ke order)
             foreach ($request->items as $item) {
                 if (!empty($item['id'])) {
-                    // Update existing
-                    OrderItem::where('id', $item['id'])->update([
+                    // Update existing scoped ke order ini
+                    $order->items()->where('id', $item['id'])->update([
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
                         'weight' => $item['weight'],
@@ -139,6 +152,13 @@ class OrderController extends Controller
                     $order->items()->create($item);
                 }
             }
+
+            \Illuminate\Support\Facades\Log::info('Admin: Order updated', [
+                'admin_id' => auth()->id(),
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $order->status?->value ?? $order->status,
+            ]);
         });
 
         return redirect()->route('admin.orders.index')
@@ -154,7 +174,16 @@ class OrderController extends Controller
                 ->with('error', 'Order tidak dapat dihapus karena sudah memiliki shipment.');
         }
 
+        $orderId = $order->id;
+        $orderNumber = $order->order_number;
+
         $order->delete();
+
+        \Illuminate\Support\Facades\Log::info('Admin: Order deleted', [
+            'admin_id' => auth()->id(),
+            'order_id' => $orderId,
+            'order_number' => $orderNumber,
+        ]);
 
         return redirect()->route('admin.orders.index')
             ->with('success', 'Order berhasil dihapus.');

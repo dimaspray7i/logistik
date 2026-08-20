@@ -13,6 +13,13 @@ class EnsureUserIsAdmin
     {
         // Jika user belum login atau bukan Admin
         if (! $request->user() || $request->user()->role !== UserRole::ADMIN) {
+            \Illuminate\Support\Facades\Log::warning('Security: Unauthorized admin route access attempted', [
+                'user_id' => $request->user()?->id,
+                'role' => $request->user()?->role?->value,
+                'url' => $request->fullUrl(),
+                'ip' => $request->ip(),
+            ]);
+
             // Redirect ke halaman yang sesuai atau abort 403
             if ($request->user() && $request->user()->role === UserRole::CUSTOMER) {
                 return redirect()->route('customer.dashboard');

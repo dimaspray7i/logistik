@@ -278,14 +278,14 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-xs font-bold text-gray-900 truncate">{{ $document->title }}</p>
+                                        <p class="text-xs font-bold text-gray-900 truncate">{{ $document->file_name }}</p>
                                         <p class="text-[10px] text-gray-500">
-                                            {{ $document->type->label() }} &middot; {{ number_format($document->size / 1024, 0) }} KB
+                                            {{ is_object($document->type) && method_exists($document->type, 'label') ? $document->type->label() : $document->type }} &middot; {{ number_format(($document->file_size ?? 0) / 1024, 0) }} KB
                                         </p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank" class="btn-ghost text-xs text-info px-2 py-1">
+                                    <a href="{{ route('documents.show', $document) }}" target="_blank" class="btn-ghost text-xs text-info px-2 py-1">
                                         Lihat
                                     </a>
                                     <form action="{{ route('admin.shipments.documents.destroy', [$shipment, $document]) }}" method="POST"

@@ -31,6 +31,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Route Dokumen Terproteksi (Admin & Customer sesuai DocumentPolicy)
+    Route::get('/documents/{document}', [\App\Http\Controllers\Admin\DocumentController::class, 'show'])->name('documents.show');
 });
 
 // ==========================================
@@ -59,4 +62,16 @@ Route::middleware(['auth', 'role.admin'])->prefix('admin')->name('admin.')->grou
 // ==========================================
 Route::middleware(['auth', 'role.customer'])->prefix('customer')->name('customer.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Customer\DashboardController::class, 'index'])->name('dashboard');
+
+    // Pengiriman Customer
+    Route::get('/shipments', [\App\Http\Controllers\Customer\ShipmentController::class, 'index'])->name('shipments.index');
+    Route::get('/shipments/{shipment}', [\App\Http\Controllers\Customer\ShipmentController::class, 'show'])->name('shipments.show');
+
+    // Pesanan Customer
+    Route::get('/orders', [\App\Http\Controllers\Customer\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
+
+    // Profil Customer
+    Route::get('/profile', [\App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [\App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('profile.update');
 });

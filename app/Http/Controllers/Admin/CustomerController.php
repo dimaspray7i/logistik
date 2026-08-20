@@ -41,7 +41,13 @@ class CustomerController extends Controller
     public function store(StoreCustomerRequest $request)
     {
         DB::transaction(function () use ($request) {
-            $customer = Customer::create($request->except(['create_account', 'account_email', 'account_password']));
+            $customer = Customer::create($request->safe()->except(['create_account', 'account_email', 'account_password']));
+
+            \Illuminate\Support\Facades\Log::info('Admin: Customer created', [
+                'admin_id' => auth()->id(),
+                'customer_id' => $customer->id,
+                'company_name' => $customer->company_name,
+            ]);
 
             if ($request->boolean('create_account') && $request->filled('account_email')) {
                 User::create([
@@ -73,6 +79,12 @@ class CustomerController extends Controller
     {
         $customer->update($request->validated());
 
+        \Illuminate\Support\Facades\Log::info('Admin: Customer updated', [
+            'admin_id' => auth()->id(),
+            'customer_id' => $customer->id,
+            'company_name' => $customer->company_name,
+        ]);
+
         return redirect()->route('admin.customers.index')
             ->with('success', 'Customer berhasil diperbarui.');
     }
@@ -84,7 +96,16 @@ class CustomerController extends Controller
                 ->with('error', 'Customer tidak dapat dihapus karena memiliki akun user, order, atau shipment.');
         }
 
+        $customerId = $customer->id;
+        $companyName = $customer->company_name;
+
         $customer->delete();
+
+        \Illuminate\Support\Facades\Log::info('Admin: Customer deleted', [
+            'admin_id' => auth()->id(),
+            'customer_id' => $customerId,
+            'company_name' => $companyName,
+        ]);
 
         return redirect()->route('admin.customers.index')
             ->with('success', 'Customer berhasil dihapus.');
