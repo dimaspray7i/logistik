@@ -9,10 +9,6 @@ use App\Enums\DocumentType;
 
 class DocumentPolicy
 {
-    protected $casts = [
-     'type' => DocumentType::class,
-    ];
-
     public function viewAny(User $user): bool
     {
         return $user->role === UserRole::ADMIN || $user->role === UserRole::CUSTOMER;

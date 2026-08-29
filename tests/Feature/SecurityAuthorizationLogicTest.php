@@ -24,6 +24,8 @@ class SecurityAuthorizationLogicTest extends TestCase
     private User $customerUserB;
     private Customer $customerA;
     private Customer $customerB;
+    private Order $orderA;
+    private Order $orderB;
     private Product $product;
 
     protected function setUp(): void
@@ -46,6 +48,13 @@ class SecurityAuthorizationLogicTest extends TestCase
             'postal_code' => '10110',
         ]);
 
+        $this->orderA = Order::create([
+            'order_number' => 'ORD-SETUP-A',
+            'customer_id' => $this->customerA->id,
+            'order_date' => now(),
+            'status' => OrderStatus::PROCESSING,
+        ]);
+
         $this->customerUserA = User::factory()->create([
             'role' => UserRole::CUSTOMER,
             'customer_id' => $this->customerA->id,
@@ -60,6 +69,13 @@ class SecurityAuthorizationLogicTest extends TestCase
             'city' => 'Surabaya',
             'province' => 'Jawa Timur',
             'postal_code' => '60111',
+        ]);
+
+        $this->orderB = Order::create([
+            'order_number' => 'ORD-SETUP-B',
+            'customer_id' => $this->customerB->id,
+            'order_date' => now(),
+            'status' => OrderStatus::PROCESSING,
         ]);
 
         $this->customerUserB = User::factory()->create([
@@ -83,6 +99,7 @@ class SecurityAuthorizationLogicTest extends TestCase
     {
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-TRK-001',
+            'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Jakarta',
             'destination' => 'Surabaya',
@@ -112,6 +129,7 @@ class SecurityAuthorizationLogicTest extends TestCase
     {
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-TRK-002',
+            'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
@@ -123,6 +141,7 @@ class SecurityAuthorizationLogicTest extends TestCase
             'user_id' => $this->admin->id,
             'status' => ShipmentStatus::IN_TRANSIT,
             'location' => 'Gerbang Tol Pasteur',
+            'description' => 'Truk keluar tol',
             'tracked_at' => now(),
         ]);
 
@@ -138,6 +157,7 @@ class SecurityAuthorizationLogicTest extends TestCase
     {
         $shipment1 = Shipment::create([
             'shipment_number' => 'SHP-TRK-003',
+            'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Jakarta',
             'destination' => 'Semarang',
@@ -146,6 +166,7 @@ class SecurityAuthorizationLogicTest extends TestCase
 
         $shipment2 = Shipment::create([
             'shipment_number' => 'SHP-TRK-004',
+            'order_id' => $this->orderB->id,
             'customer_id' => $this->customerB->id,
             'origin' => 'Surabaya',
             'destination' => 'Malang',
@@ -157,6 +178,7 @@ class SecurityAuthorizationLogicTest extends TestCase
             'user_id' => $this->admin->id,
             'status' => ShipmentStatus::IN_TRANSIT,
             'location' => 'Sidoarjo',
+            'description' => 'Melintas di Sidoarjo',
             'tracked_at' => now(),
         ]);
 
@@ -169,6 +191,7 @@ class SecurityAuthorizationLogicTest extends TestCase
     {
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-TRK-005',
+            'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Jakarta',
             'destination' => 'Bekasi',
@@ -180,6 +203,7 @@ class SecurityAuthorizationLogicTest extends TestCase
             'user_id' => $this->admin->id,
             'status' => ShipmentStatus::READY,
             'location' => 'Warehouse Cakung',
+            'description' => 'Barang siap muat',
             'tracked_at' => now(),
         ]);
 
@@ -315,6 +339,7 @@ class SecurityAuthorizationLogicTest extends TestCase
     {
         $shipmentB = Shipment::create([
             'shipment_number' => 'SHP-CUST-B',
+            'order_id' => $this->orderB->id,
             'customer_id' => $this->customerB->id,
             'origin' => 'Surabaya',
             'destination' => 'Bali',

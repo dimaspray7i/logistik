@@ -120,6 +120,7 @@ class SecurityProductionHardeningTest extends TestCase
                 'password_confirmation' => 'password123',
             ]);
             $this->assertNotEquals(429, $response->getStatusCode());
+            \Illuminate\Support\Facades\Auth::logout();
         }
 
         // 7th request must be throttled

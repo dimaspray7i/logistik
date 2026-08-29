@@ -26,6 +26,8 @@ class SecurityCriticalHardeningTest extends TestCase
     private User $customerUserB;
     private Customer $customerA;
     private Customer $customerB;
+    private \App\Models\Order $orderA;
+    private \App\Models\Order $orderB;
 
     protected function setUp(): void
     {
@@ -47,6 +49,13 @@ class SecurityCriticalHardeningTest extends TestCase
             'postal_code' => '10110',
         ]);
 
+        $this->orderA = \App\Models\Order::create([
+            'order_number' => 'ORD-CRIT-A',
+            'customer_id' => $this->customerA->id,
+            'order_date' => now(),
+            'status' => \App\Enums\OrderStatus::PROCESSING,
+        ]);
+
         $this->customerUserA = User::factory()->create([
             'role' => UserRole::CUSTOMER,
             'customer_id' => $this->customerA->id,
@@ -63,6 +72,13 @@ class SecurityCriticalHardeningTest extends TestCase
             'postal_code' => '60111',
         ]);
 
+        $this->orderB = \App\Models\Order::create([
+            'order_number' => 'ORD-CRIT-B',
+            'customer_id' => $this->customerB->id,
+            'order_date' => now(),
+            'status' => \App\Enums\OrderStatus::PROCESSING,
+        ]);
+
         $this->customerUserB = User::factory()->create([
             'role' => UserRole::CUSTOMER,
             'customer_id' => $this->customerB->id,
@@ -77,6 +93,7 @@ class SecurityCriticalHardeningTest extends TestCase
 
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-TEST-001',
+            'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
@@ -105,6 +122,7 @@ class SecurityCriticalHardeningTest extends TestCase
 
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-TEST-002',
+            'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
@@ -133,6 +151,7 @@ class SecurityCriticalHardeningTest extends TestCase
 
         $shipmentB = Shipment::create([
             'shipment_number' => 'SHP-TEST-003',
+            'order_id' => $this->orderB->id,
             'customer_id' => $this->customerB->id,
             'origin' => 'Surabaya',
             'destination' => 'Malang',
@@ -161,6 +180,7 @@ class SecurityCriticalHardeningTest extends TestCase
 
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-TEST-004',
+            'order_id' => $this->orderB->id,
             'customer_id' => $this->customerB->id,
             'origin' => 'Surabaya',
             'destination' => 'Malang',
@@ -187,6 +207,7 @@ class SecurityCriticalHardeningTest extends TestCase
 
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-TEST-005',
+            'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Jakarta',
             'destination' => 'Semarang',
