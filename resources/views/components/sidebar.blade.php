@@ -36,7 +36,7 @@
     </div>
 
     <!-- Navigation Menu Items -->
-    <nav class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+    <nav class="flex-1 px-3 py-4 space-y-6 overflow-y-auto overscroll-contain">
         @if ($isAdmin)
             <!-- UTAMA -->
             <div>

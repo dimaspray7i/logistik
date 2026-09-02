@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InvoicePaymentStatus;
 use App\Enums\ShipmentStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,8 @@ class Shipment extends Model
     protected $fillable = [
         'shipment_number', 'order_id', 'customer_id', 'vehicle_id', 'driver_id',
         'origin', 'destination', 'departure_date', 'estimated_arrival', 'actual_arrival',
-        'total_weight', 'status', 'notes'
+        'total_weight', 'status', 'notes',
+        'invoice_payment_status', 'invoice_payment_date'
     ];
 
     protected $casts = [
@@ -25,6 +27,8 @@ class Shipment extends Model
         'actual_arrival' => 'datetime',
         'total_weight' => 'decimal:2',
         'status' => ShipmentStatus::class,
+        'invoice_payment_status' => InvoicePaymentStatus::class,
+        'invoice_payment_date' => 'date',
     ];
 
     public function order(): BelongsTo

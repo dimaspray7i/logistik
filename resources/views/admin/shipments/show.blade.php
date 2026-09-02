@@ -87,7 +87,40 @@
             @endif
         </div>
 
-        <!-- 2. Item Pengiriman Table Card -->
+        <!-- 2. Informasi Pembayaran Card -->
+        <div class="crm-card space-y-4">
+            <div class="border-b border-gray-100 pb-3">
+                <h2 class="font-poppins font-bold text-base text-gray-900">Informasi Pembayaran</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+                <div>
+                    <p class="text-gray-400 font-medium">Status Pencairan Invoice</p>
+                    <div class="mt-1.5">
+                        @php
+                            $pStatus = is_object($shipment->invoice_payment_status) ? $shipment->invoice_payment_status->value : ($shipment->invoice_payment_status ?? 'Belum Dibayar');
+                        @endphp
+                        @if($pStatus === 'Sudah Dibayar')
+                            <span class="inline-flex items-center px-3 py-1 rounded-badge text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                Sudah Dibayar
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1 rounded-badge text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                Belum Dibayar
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-400 font-medium">Tanggal Pencairan</p>
+                    <p class="font-semibold text-gray-900 mt-1.5">
+                        {{ $shipment->invoice_payment_date ? $shipment->invoice_payment_date->translatedFormat('d F Y') : '-' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Item Pengiriman Table Card -->
         <div class="crm-card p-0 overflow-hidden">
             <div class="p-4 border-b border-gray-100">
                 <h2 class="font-poppins font-bold text-sm text-gray-900">Item Pengiriman</h2>
@@ -98,9 +131,9 @@
                         <tr>
                             <th>Produk</th>
                             <th>SKU</th>
-                            <th>Jumlah</th>
-                            <th>Berat (Kg)</th>
-                            <th>Satuan</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -110,9 +143,9 @@
                                 <td>
                                     <span class="px-2 py-0.5 text-xs font-semibold rounded-badge bg-gray-100 text-gray-700">{{ $item->product->sku ?? '-' }}</span>
                                 </td>
-                                <td class="text-xs text-gray-800 font-medium">{{ $item->quantity }}</td>
-                                <td class="text-xs text-gray-800 font-medium">{{ number_format($item->weight, 2) }}</td>
-                                <td class="text-xs text-gray-600">{{ $item->unit }}</td>
+                                <td class="text-xs text-gray-800 font-medium">{{ number_format($item->quantity, 0) }}</td>
+                                <td class="text-xs text-gray-600 font-medium">{{ $item->unit }}</td>
+                                <td class="text-xs text-gray-500">{{ $item->notes ?? '-' }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="5" class="py-6 text-center text-xs text-gray-400">Tidak ada item pengiriman.</td></tr>

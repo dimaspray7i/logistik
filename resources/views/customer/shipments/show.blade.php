@@ -184,6 +184,36 @@
             </div>
         </div>
 
+        <!-- Informasi Pembayaran -->
+        <div class="crm-card">
+            <h3 class="font-poppins font-bold text-base text-gray-900 border-b border-gray-100 pb-3 mb-4">Informasi Pembayaran</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="p-3 bg-gray-50/80 rounded-btn border border-gray-100">
+                    <p class="text-[11px] text-gray-500 font-medium">Status Pencairan Invoice</p>
+                    <div class="mt-1.5">
+                        @php
+                            $pStatus = is_object($shipment->invoice_payment_status) ? $shipment->invoice_payment_status->value : ($shipment->invoice_payment_status ?? 'Belum Dibayar');
+                        @endphp
+                        @if($pStatus === 'Sudah Dibayar')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                Sudah Dibayar
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                Belum Dibayar
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                <div class="p-3 bg-gray-50/80 rounded-btn border border-gray-100">
+                    <p class="text-[11px] text-gray-500 font-medium">Tanggal Pencairan</p>
+                    <p class="text-sm font-bold text-gray-900 mt-1">
+                        {{ $shipment->invoice_payment_date ? $shipment->invoice_payment_date->translatedFormat('d F Y') : '-' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Item Pengiriman Table -->
         <div class="crm-card !p-0 overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100 bg-white">
@@ -195,18 +225,18 @@
                     <thead>
                         <tr>
                             <th>Produk</th>
-                            <th>Kuantitas</th>
-                            <th>Berat (Kg)</th>
-                            <th>Satuan</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($shipment->items as $item)
                             <tr>
                                 <td class="font-semibold text-gray-900">{{ $item->product->name ?? '-' }}</td>
-                                <td class="text-xs text-gray-700 font-medium">{{ $item->quantity }}</td>
-                                <td class="text-xs text-gray-700">{{ number_format($item->weight, 2) }}</td>
-                                <td class="text-xs text-gray-500">{{ $item->unit }}</td>
+                                <td class="text-xs text-gray-700 font-medium">{{ number_format($item->quantity, 0) }}</td>
+                                <td class="text-xs text-gray-700 font-medium">{{ $item->unit }}</td>
+                                <td class="text-xs text-gray-500">{{ $item->notes ?? '-' }}</td>
                             </tr>
                         @empty
                             <tr>

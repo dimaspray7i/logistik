@@ -143,6 +143,40 @@
                 </div>
             </div>
 
+            {{-- ===== SECTION 3: Informasi Pembayaran ===== --}}
+            <div class="crm-card space-y-4" x-data="{ paymentStatus: '{{ old('invoice_payment_status', 'Belum Dibayar') }}' }">
+                <div class="border-b border-gray-100 pb-3">
+                    <h2 class="font-poppins font-bold text-base text-gray-900">3. Informasi Pembayaran</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Status pembayaran invoice dan tanggal pencairan dana.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="invoice_payment_status" class="crm-label">Status Pencairan Invoice <span class="text-primary">*</span></label>
+                        <select id="invoice_payment_status" name="invoice_payment_status" x-model="paymentStatus" required
+                                class="crm-input @error('invoice_payment_status') border-primary @enderror">
+                            @foreach (\App\Enums\InvoicePaymentStatus::cases() as $s)
+                                <option value="{{ $s->value }}" @selected(old('invoice_payment_status', 'Belum Dibayar') === $s->value)>
+                                    {{ $s->label() }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('invoice_payment_status') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="invoice_payment_date" class="crm-label">
+                            Tanggal Pencairan <span x-show="paymentStatus === 'Sudah Dibayar'" class="text-primary">*</span>
+                        </label>
+                        <input id="invoice_payment_date" type="date" name="invoice_payment_date"
+                               value="{{ old('invoice_payment_date') }}"
+                               :required="paymentStatus === 'Sudah Dibayar'"
+                               class="crm-input @error('invoice_payment_date') border-primary @enderror">
+                        @error('invoice_payment_date') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+            </div>
+
             {{-- ===== ACTION BUTTONS ===== --}}
             <div class="flex items-center justify-end gap-3">
                 <a href="{{ route('admin.shipments.index') }}" class="btn-ghost">Batal</a>

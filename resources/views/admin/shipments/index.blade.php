@@ -60,6 +60,7 @@
                             <th>Rute asal &rarr; Tujuan</th>
                             <th>Armada Kendaraan</th>
                             <th>Status</th>
+                            <th>Pembayaran</th>
                             <th>Estimasi Tiba</th>
                             <th class="text-right">Aksi</th>
                         </tr>
@@ -83,6 +84,20 @@
                                 </td>
                                 <td>
                                     <x-badge :status="$shipment->status" />
+                                </td>
+                                <td>
+                                    @php
+                                        $pStatus = is_object($shipment->invoice_payment_status) ? $shipment->invoice_payment_status->value : ($shipment->invoice_payment_status ?? 'Belum Dibayar');
+                                    @endphp
+                                    @if($pStatus === 'Sudah Dibayar')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                            Sudah Dibayar
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                                            Belum Dibayar
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="text-xs text-gray-600">
                                     {{ $shipment->estimated_arrival ? $shipment->estimated_arrival->format('d M Y') : '-' }}
@@ -108,7 +123,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-12 text-center text-gray-500">
+                                <td colspan="8" class="py-12 text-center text-gray-500">
                                     <p class="text-sm">Tidak ada data pengiriman yang ditemukan.</p>
                                 </td>
                             </tr>

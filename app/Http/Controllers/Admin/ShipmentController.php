@@ -87,6 +87,9 @@ class ShipmentController extends Controller
             // Generate shipment number
             $shipmentNumber = 'SHP-' . date('Ymd') . '-' . str_pad(Shipment::count() + 1, 3, '0', STR_PAD_LEFT);
 
+            $paymentStatus = $request->input('invoice_payment_status', 'Belum Dibayar');
+            $paymentDate = ($paymentStatus === 'Sudah Dibayar') ? $request->input('invoice_payment_date') : null;
+
             $shipment = Shipment::create([
                 'shipment_number' => $shipmentNumber,
                 'order_id' => $order->id,
@@ -97,9 +100,11 @@ class ShipmentController extends Controller
                 'destination' => $request->destination,
                 'departure_date' => $request->departure_date,
                 'estimated_arrival' => $request->estimated_arrival,
-                'total_weight' => $order->items->sum('weight'),
+                'total_weight' => $order->items->sum('weight') ?? 0,
                 'status' => $request->status,
                 'notes' => $request->notes,
+                'invoice_payment_status' => $paymentStatus,
+                'invoice_payment_date' => $paymentDate,
             ]);
 
             // Copy order items ke shipment items
@@ -107,7 +112,7 @@ class ShipmentController extends Controller
                 $shipment->items()->create([
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
-                    'weight' => $item->weight,
+                    'weight' => $item->weight ?? 0,
                     'unit' => $item->unit,
                     'notes' => $item->notes,
                 ]);
@@ -160,6 +165,9 @@ class ShipmentController extends Controller
             $oldVehicleId = $shipment->vehicle_id;
             $newVehicleId = $request->vehicle_id;
 
+            $paymentStatus = $request->input('invoice_payment_status', 'Belum Dibayar');
+            $paymentDate = ($paymentStatus === 'Sudah Dibayar') ? $request->input('invoice_payment_date') : null;
+
             $shipment->update([
                 'vehicle_id' => $request->vehicle_id,
                 'driver_id' => $request->driver_id,
@@ -170,6 +178,8 @@ class ShipmentController extends Controller
                 'actual_arrival' => $request->actual_arrival,
                 'status' => $request->status,
                 'notes' => $request->notes,
+                'invoice_payment_status' => $paymentStatus,
+                'invoice_payment_date' => $paymentDate,
             ]);
 
             // Update status vehicle lama kembali AVAILABLE jika sudah tidak dipakai

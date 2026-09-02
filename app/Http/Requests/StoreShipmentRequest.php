@@ -23,6 +23,17 @@ class StoreShipmentRequest extends FormRequest
             'estimated_arrival' => ['nullable', 'date'],
             'status' => ['required', 'string', 'in:DRAFT,READY,IN_TRANSIT,ARRIVED,DELIVERED,DELAYED,CANCELLED'],
             'notes' => ['nullable', 'string'],
+            'invoice_payment_status' => ['nullable', 'string', 'in:Belum Dibayar,Sudah Dibayar'],
+            'invoice_payment_date' => ['nullable', 'required_if:invoice_payment_status,Sudah Dibayar', 'date'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'invoice_payment_status.in' => 'Status Pencairan Invoice yang dipilih tidak valid.',
+            'invoice_payment_date.required_if' => 'Tanggal Pencairan wajib diisi jika Status Pencairan Invoice adalah Sudah Dibayar.',
+            'invoice_payment_date.date' => 'Format Tanggal Pencairan tidak valid.',
         ];
     }
 }

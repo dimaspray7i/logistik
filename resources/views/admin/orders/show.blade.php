@@ -64,9 +64,9 @@
                         <tr>
                             <th>Produk</th>
                             <th>SKU</th>
-                            <th>Jumlah</th>
-                            <th>Berat Total</th>
-                            <th>Catatan</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,8 +74,8 @@
                             <tr>
                                 <td class="font-semibold text-gray-900">{{ $item->product->name ?? '-' }}</td>
                                 <td class="text-xs text-gray-600">{{ $item->product->sku ?? '-' }}</td>
-                                <td class="text-xs text-gray-800 font-medium">{{ number_format($item->quantity, 0) }} {{ $item->unit }}</td>
-                                <td class="text-xs text-gray-800 font-medium">{{ number_format($item->weight, 0) }} kg</td>
+                                <td class="text-xs text-gray-800 font-medium">{{ number_format($item->quantity, 0) }}</td>
+                                <td class="text-xs text-gray-800 font-medium">{{ $item->unit }}</td>
                                 <td class="text-xs text-gray-500">{{ $item->notes ?? '-' }}</td>
                             </tr>
                         @empty

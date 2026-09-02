@@ -74,7 +74,13 @@ class OrderController extends Controller
 
             // Simpan order items
             foreach ($request->items as $item) {
-                $order->items()->create($item);
+                $order->items()->create([
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'weight' => $item['weight'] ?? 0,
+                    'unit' => $item['unit'],
+                    'notes' => $item['notes'] ?? null,
+                ]);
             }
 
             \Illuminate\Support\Facades\Log::info('Admin: Order created', [
@@ -143,13 +149,19 @@ class OrderController extends Controller
                     $order->items()->where('id', $item['id'])->update([
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
-                        'weight' => $item['weight'],
+                        'weight' => $item['weight'] ?? 0,
                         'unit' => $item['unit'],
                         'notes' => $item['notes'] ?? null,
                     ]);
                 } else {
                     // Create new
-                    $order->items()->create($item);
+                    $order->items()->create([
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'weight' => $item['weight'] ?? 0,
+                        'unit' => $item['unit'],
+                        'notes' => $item['notes'] ?? null,
+                    ]);
                 }
             }
 
