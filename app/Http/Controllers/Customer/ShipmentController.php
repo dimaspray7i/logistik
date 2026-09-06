@@ -22,6 +22,8 @@ class ShipmentController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('shipment_number', 'like', "%{$search}%")
+                  ->orWhere('tracking_number', 'like', "%{$search}%")
+                  ->orWhere('carrier', 'like', "%{$search}%")
                   ->orWhere('origin', 'like', "%{$search}%")
                   ->orWhere('destination', 'like', "%{$search}%");
             });
@@ -49,6 +51,9 @@ class ShipmentController extends Controller
         // Double-check authorization via policy
         $this->authorize('view', $shipment);
 
-        return view('customer.shipments.show', compact('shipment'));
+        $carrierTrackingService = app(\App\Contracts\CarrierTrackingServiceInterface::class);
+        $externalTrackingInfo = $shipment->isExternal() ? $carrierTrackingService->getTrackingDetails($shipment) : null;
+
+        return view('customer.shipments.show', compact('shipment', 'externalTrackingInfo'));
     }
 }

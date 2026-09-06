@@ -49,6 +49,10 @@
                             <p class="font-semibold text-gray-900 mt-0.5">{{ $customer->company_name }}</p>
                         </div>
                         <div>
+                            <p class="text-gray-400 font-medium">Prefix Kode Internal</p>
+                            <p class="font-bold text-primary font-mono mt-0.5">{{ $customer->shipment_code_prefix ?: 'Default (PKM)' }}</p>
+                        </div>
+                        <div>
                             <p class="text-gray-400 font-medium">Nama PIC Utama</p>
                             <p class="font-semibold text-gray-900 mt-0.5">{{ $customer->name }}</p>
                         </div>
@@ -161,8 +165,8 @@
                                 @forelse($customer->shipments->take(5) as $shipment)
                                     <tr>
                                         <td>
-                                            <a href="{{ route('admin.shipments.show', $shipment) }}" class="font-bold text-xs text-gray-900 hover:text-primary transition">
-                                                {{ $shipment->shipment_number }}
+                                            <a href="{{ route('admin.shipments.show', $shipment) }}" class="font-bold text-xs text-gray-900 hover:text-primary transition font-mono">
+                                                {{ $shipment->display_code }}
                                             </a>
                                             <p class="text-[10px] text-gray-500 mt-0.5">{{ $shipment->origin }} → {{ $shipment->destination }}</p>
                                         </td>

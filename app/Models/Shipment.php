@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\InvoicePaymentStatus;
 use App\Enums\ShipmentStatus;
+use App\Enums\ShippingType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,8 @@ class Shipment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'shipment_number', 'order_id', 'customer_id', 'vehicle_id', 'driver_id',
+        'shipment_number', 'shipping_type', 'carrier', 'tracking_number',
+        'order_id', 'customer_id', 'vehicle_id', 'driver_id',
         'origin', 'destination', 'departure_date', 'estimated_arrival', 'actual_arrival',
         'total_weight', 'status', 'notes',
         'invoice_payment_status', 'invoice_payment_date'
@@ -27,9 +29,39 @@ class Shipment extends Model
         'actual_arrival' => 'datetime',
         'total_weight' => 'decimal:2',
         'status' => ShipmentStatus::class,
+        'shipping_type' => ShippingType::class,
         'invoice_payment_status' => InvoicePaymentStatus::class,
         'invoice_payment_date' => 'date',
     ];
+
+    public function isExternal(): bool
+    {
+        $val = is_object($this->shipping_type) ? $this->shipping_type->value : $this->shipping_type;
+        return $val === ShippingType::EXTERNAL->value || $val === 'EXTERNAL';
+    }
+
+    public function isInternal(): bool
+    {
+        return !$this->isExternal();
+    }
+
+    public function getDisplayCodeAttribute(): string
+    {
+        if ($this->isExternal() && !empty($this->tracking_number)) {
+            return $this->tracking_number;
+        }
+
+        return $this->shipment_number;
+    }
+
+    public function getCarrierLabelAttribute(): string
+    {
+        if ($this->isExternal() && !empty($this->carrier)) {
+            return $this->carrier;
+        }
+
+        return 'Armada Perusahaan';
+    }
 
     public function order(): BelongsTo
     {
@@ -69,5 +101,35 @@ class Shipment extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(Document::class);
+    }
+
+    public function syncOrderStatus(): void
+    {
+        if (!$this->order_id) return;
+        $order = $this->order;
+        if (!$order) return;
+
+        $allShipments = $order->shipments()->get();
+        if ($allShipments->isEmpty()) return;
+
+        $allDelivered = $allShipments->every(fn($s) => $s->status === ShipmentStatus::DELIVERED);
+        $allCancelled = $allShipments->every(fn($s) => $s->status === ShipmentStatus::CANCELLED);
+
+        if ($allDelivered) {
+            $order->update(['status' => \App\Enums\OrderStatus::COMPLETED]);
+        } elseif ($allCancelled) {
+            $order->update(['status' => \App\Enums\OrderStatus::CANCELLED]);
+        } else {
+            $hasActive = $allShipments->some(fn($s) => in_array($s->status, [
+                ShipmentStatus::READY,
+                ShipmentStatus::IN_TRANSIT,
+                ShipmentStatus::ARRIVED,
+                ShipmentStatus::DELIVERED,
+                ShipmentStatus::DELAYED
+            ]));
+            if ($hasActive && $order->status === \App\Enums\OrderStatus::PENDING) {
+                $order->update(['status' => \App\Enums\OrderStatus::PROCESSING]);
+            }
+        }
     }
 }

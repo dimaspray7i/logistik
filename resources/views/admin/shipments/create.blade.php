@@ -12,11 +12,16 @@
 
         <form method="POST" action="{{ route('admin.shipments.store') }}"
               x-data="{
+                  shippingType: '{{ old('shipping_type', 'INTERNAL') }}',
+                  carrierSelect: '{{ old('carrier', 'JNE') }}',
+                  customCarrier: '',
                   orders: {{ Js::from($orders->map(fn($o) => [
                       'id' => $o->id,
                       'order_number' => $o->order_number,
                       'customer_id' => $o->customer_id,
                       'customer_name' => $o->customer->company_name ?? '-',
+                      'customer_prefix' => $o->customer->shipment_code_prefix ?: config('shipment.prefix', 'PKM'),
+                      'next_code_preview' => \App\Services\ShipmentCodeGenerator::generate($o->customer),
                       'items_count' => $o->items->count(),
                       'total_weight' => $o->items->sum('weight'),
                   ])) }},
@@ -68,10 +73,94 @@
                 </div>
             </div>
 
-            {{-- ===== SECTION 2: Detail Pengiriman ===== --}}
+            {{-- ===== SECTION 2: Jenis & Identitas Pengiriman ===== --}}
             <div class="crm-card space-y-4">
                 <div class="border-b border-gray-100 pb-3">
-                    <h2 class="font-poppins font-bold text-base text-gray-900">2. Detail Pengiriman</h2>
+                    <h2 class="font-poppins font-bold text-base text-gray-900">2. Metode & Identitas Pengiriman</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Pilih apakah pengiriman menggunakan Armada Internal Perusahaan atau Ekspedisi Eksternal.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {{-- Pilihan Jenis Pengiriman --}}
+                    <div>
+                        <label class="crm-label">Jenis Pengiriman <span class="text-primary">*</span></label>
+                        <div class="grid grid-cols-2 gap-3 mt-1">
+                            <label class="flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition"
+                                   :class="shippingType === 'INTERNAL' ? 'border-primary bg-primary/5 text-gray-900 font-semibold' : 'border-gray-200 text-gray-600'">
+                                <input type="radio" name="shipping_type" value="INTERNAL" x-model="shippingType" class="text-primary focus:ring-primary">
+                                <span class="text-xs md:text-sm">Armada Perusahaan (Internal)</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition"
+                                   :class="shippingType === 'EXTERNAL' ? 'border-primary bg-primary/5 text-gray-900 font-semibold' : 'border-gray-200 text-gray-600'">
+                                <input type="radio" name="shipping_type" value="EXTERNAL" x-model="shippingType" class="text-primary focus:ring-primary">
+                                <span class="text-xs md:text-sm">Ekspedisi Eksternal</span>
+                            </label>
+                        </div>
+                        @error('shipping_type') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Form Bidang Kode / Resi berdasarkan Jenis --}}
+                    <div>
+                        {{-- Jika INTERNAL --}}
+                        <div x-show="shippingType === 'INTERNAL'" x-transition>
+                            <label for="internal_code_display" class="crm-label">Kode Pengiriman Internal (Otomatis Server)</label>
+                            <div class="relative">
+                                <input id="internal_code_display" type="text"
+                                       :value="selectedOrder ? selectedOrder.next_code_preview : '{{ $nextInternalCode }}'" readonly
+                                       class="crm-input bg-gray-100 text-gray-700 cursor-not-allowed font-mono font-semibold">
+                                <span class="absolute right-3 top-2.5 text-xs text-gray-400 font-medium bg-gray-200 px-2 py-0.5 rounded">Auto-Generated</span>
+                            </div>
+                            <template x-if="selectedOrder">
+                                <p class="text-[11px] text-gray-600 mt-1">
+                                    Awalan Kode Pelanggan: <strong class="font-mono text-gray-900" x-text="selectedOrder.customer_prefix"></strong> | Pratinjau Kode Berikutnya: <strong class="font-mono text-primary" x-text="selectedOrder.next_code_preview"></strong>
+                                </p>
+                            </template>
+                            <template x-if="!selectedOrder">
+                                <p class="text-[11px] text-gray-500 mt-1">Pilih order di atas untuk melihat awalan kode pelanggan dan estimasi nomor urut berikutnya.</p>
+                            </template>
+                        </div>
+
+                        {{-- Jika EXTERNAL --}}
+                        <div x-show="shippingType === 'EXTERNAL'" x-transition class="space-y-3">
+                            <div>
+                                <label for="carrier" class="crm-label">Jasa Pengiriman / Carrier <span class="text-primary">*</span></label>
+                                <select id="carrier" name="carrier" x-model="carrierSelect" :required="shippingType === 'EXTERNAL'"
+                                        class="crm-input @error('carrier') border-primary @enderror">
+                                    @foreach ($carriers as $c)
+                                        <option value="{{ $c }}">{{ $c }}</option>
+                                    @endforeach
+                                    <option value="LAINNYA">-- Ekspedisi Lainnya --</option>
+                                </select>
+                                <div x-show="carrierSelect === 'LAINNYA'" class="mt-2">
+                                    <input type="text" name="carrier_custom" placeholder="Masukkan nama jasa pengiriman..."
+                                           x-model="customCarrier"
+                                           :disabled="carrierSelect !== 'LAINNYA'"
+                                           class="crm-input text-xs">
+                                </div>
+                                @error('carrier') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div>
+                                <label for="tracking_number" class="crm-label">Nomor Resi Original <span class="text-primary">*</span></label>
+                                <input id="tracking_number" type="text" name="tracking_number" value="{{ old('tracking_number') }}"
+                                       placeholder="Contoh: JNE123456789 atau POS987654"
+                                       :required="shippingType === 'EXTERNAL'"
+                                       class="crm-input font-mono @error('tracking_number') border-primary @enderror">
+                                <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded p-2 mt-1 flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Nomor ini merupakan resi asli dari pihak ekspedisi dan disimpan tanpa diubah.</span>
+                                </p>
+                                @error('tracking_number') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ===== SECTION 3: Detail Operasional Pengiriman ===== --}}
+            <div class="crm-card space-y-4">
+                <div class="border-b border-gray-100 pb-3">
+                    <h2 class="font-poppins font-bold text-base text-gray-900">3. Detail Operasional & Rute</h2>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -89,9 +178,10 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {{-- Armada & Supir (Hanya relevan untuk internal) --}}
+                <div x-show="shippingType === 'INTERNAL'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/70 p-3 rounded-lg border border-gray-100">
                     <div>
-                        <label for="vehicle_id" class="crm-label">Kendaraan</label>
+                        <label for="vehicle_id" class="crm-label">Kendaraan Internal</label>
                         <select id="vehicle_id" name="vehicle_id" class="crm-input">
                             <option value="">-- Tanpa Kendaraan --</option>
                             @foreach ($vehicles as $vehicle)
@@ -102,7 +192,7 @@
                         </select>
                     </div>
                     <div>
-                        <label for="driver_id" class="crm-label">Supir / Driver</label>
+                        <label for="driver_id" class="crm-label">Supir / Driver Internal</label>
                         <select id="driver_id" name="driver_id" class="crm-input">
                             <option value="">-- Tanpa Supir --</option>
                             @foreach ($drivers as $driver)
@@ -143,10 +233,10 @@
                 </div>
             </div>
 
-            {{-- ===== SECTION 3: Informasi Pembayaran ===== --}}
+            {{-- ===== SECTION 4: Informasi Pembayaran ===== --}}
             <div class="crm-card space-y-4" x-data="{ paymentStatus: '{{ old('invoice_payment_status', 'Belum Dibayar') }}' }">
                 <div class="border-b border-gray-100 pb-3">
-                    <h2 class="font-poppins font-bold text-base text-gray-900">3. Informasi Pembayaran</h2>
+                    <h2 class="font-poppins font-bold text-base text-gray-900">4. Informasi Pembayaran</h2>
                     <p class="text-xs text-gray-500 mt-0.5">Status pembayaran invoice dan tanggal pencairan dana.</p>
                 </div>
 

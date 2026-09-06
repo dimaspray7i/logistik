@@ -98,7 +98,7 @@
                     @if($liveTracking)
                         <div class="space-y-4">
                             <div class="flex items-center justify-between">
-                                <span class="text-sm font-bold text-gray-900">{{ $liveTracking->shipment_number }}</span>
+                                <span class="text-sm font-bold text-gray-900 font-mono">{{ $liveTracking->display_code }}</span>
                                 <span class="badge-pill badge-in-transit">Dalam Perjalanan</span>
                             </div>
 
@@ -226,7 +226,7 @@
                 <table class="crm-table">
                     <thead>
                         <tr>
-                            <th>No. Pengiriman</th>
+                            <th>No. / Resi Pengiriman</th>
                             <th>Rute Pengiriman</th>
                             <th>Status</th>
                             <th>Estimasi Tiba</th>
@@ -236,8 +236,8 @@
                     <tbody>
                         @forelse ($recentShipments as $shipment)
                             <tr>
-                                <td class="font-semibold text-gray-900">
-                                    {{ $shipment->shipment_number }}
+                                <td class="font-semibold text-gray-900 font-mono">
+                                    {{ $shipment->display_code }}
                                 </td>
                                 <td class="text-gray-600">
                                     <span class="font-medium text-gray-900">{{ $shipment->origin }}</span>

@@ -22,8 +22,19 @@
 
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="flex items-center gap-3">
-                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ $shipment->shipment_number }}</h1>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight font-mono">{{ $shipment->display_code }}</h1>
+                    @if ($shipment->isExternal())
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span>Ekspedisi: {{ $shipment->carrier_label }}</span>
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+                            <span>Armada Internal</span>
+                        </span>
+                    @endif
                     <x-badge :status="$shipment->status" />
                 </div>
                 <p class="text-sm text-gray-500 mt-1 font-normal">
@@ -34,11 +45,31 @@
 
         <!-- 1. Informasi Utama Pengiriman Card -->
         <div class="crm-card space-y-4">
-            <div class="border-b border-gray-100 pb-3">
+            <div class="border-b border-gray-100 pb-3 flex items-center justify-between">
                 <h2 class="font-poppins font-bold text-base text-gray-900">Informasi Pengiriman</h2>
+                <span class="text-xs text-gray-400 font-medium">Metode: <strong class="text-gray-700">{{ $shipment->isExternal() ? 'Ekspedisi Eksternal' : 'Armada Perusahaan' }}</strong></span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm">
+                @if ($shipment->isExternal())
+                    <div>
+                        <p class="text-gray-400 font-medium">Jasa Pengiriman / Carrier</p>
+                        <p class="font-bold text-blue-700 mt-0.5">{{ $shipment->carrier_label }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 font-medium">Nomor Resi / Pelacakan</p>
+                        <p class="font-bold text-gray-900 font-mono mt-0.5">{{ $shipment->tracking_number ?: '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 font-medium">Kode Pengiriman Sistem</p>
+                        <p class="font-semibold text-gray-700 font-mono mt-0.5">{{ $shipment->shipment_number }}</p>
+                    </div>
+                @else
+                    <div>
+                        <p class="text-gray-400 font-medium">Kode Pengiriman Internal</p>
+                        <p class="font-bold text-gray-900 font-mono mt-0.5">{{ $shipment->shipment_number }}</p>
+                    </div>
+                @endif
                 <div>
                     <p class="text-gray-400 font-medium">Pelanggan</p>
                     <a href="{{ route('admin.customers.show', $shipment->customer_id) }}" class="font-bold text-info hover:underline mt-0.5 block">
@@ -55,16 +86,18 @@
                     <p class="text-gray-400 font-medium">Total Berat</p>
                     <p class="font-semibold text-gray-900 mt-0.5">{{ number_format($shipment->total_weight, 0) }} Kg</p>
                 </div>
-                <div>
-                    <p class="text-gray-400 font-medium">Kendaraan</p>
-                    <p class="font-semibold text-gray-900 mt-0.5">
-                        {{ $shipment->vehicle ? $shipment->vehicle->plate_number . ' (' . $shipment->vehicle->vehicle_type . ')' : 'Belum diassign' }}
-                    </p>
-                </div>
-                <div>
-                    <p class="text-gray-400 font-medium">Supir / Driver</p>
-                    <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->driver->name ?? 'Belum diassign' }}</p>
-                </div>
+                @if ($shipment->isInternal())
+                    <div>
+                        <p class="text-gray-400 font-medium">Kendaraan Internal</p>
+                        <p class="font-semibold text-gray-900 mt-0.5">
+                            {{ $shipment->vehicle ? $shipment->vehicle->plate_number . ' (' . $shipment->vehicle->vehicle_type . ')' : 'Belum diassign' }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 font-medium">Supir / Driver</p>
+                        <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->driver->name ?? 'Belum diassign' }}</p>
+                    </div>
+                @endif
                 <div>
                     <p class="text-gray-400 font-medium">Tanggal Berangkat</p>
                     <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->departure_date ? $shipment->departure_date->format('d M Y H:i') : '-' }}</p>
@@ -199,73 +232,31 @@
             @endif
         </div>
 
-        <!-- 4. Riwayat Tracking & Form Update -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 4. Pelacakan Pengiriman (Peta Interaktif & Timeline Perjalanan) -->
+        <x-shipment-tracking :shipment="$shipment" :isAdmin="true" />
 
-            <!-- Timeline Tracking Card -->
-            <div class="crm-card space-y-4">
-                <div class="border-b border-gray-100 pb-3 flex items-center justify-between">
-                    <h2 class="font-poppins font-bold text-base text-gray-900">Riwayat Tracking Live</h2>
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <!-- 5. Form Tambah Update Tracking (Admin Only) -->
+        <div class="crm-card space-y-5" x-data="trackingFormHelper()">
+            <div class="border-b border-gray-100 pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                    <h2 class="font-poppins font-bold text-base text-gray-900 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Tambah Update Tracking Pengiriman</span>
+                    </h2>
+                    <p class="text-xs text-gray-500">Perbarui posisi, status fisik, dan koordinat geografis barang pengiriman.</p>
                 </div>
-
-                @php $trackings = $shipment->trackingUpdates->sortBy('tracked_at'); @endphp
-                @if($trackings->count() > 0)
-                    <div class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
-                        @foreach($trackings as $tracking)
-                            <div class="relative">
-                                @php
-                                    $dotBg = match($tracking->status->value) {
-                                        'IN_TRANSIT' => 'bg-info',
-                                        'ARRIVED', 'DELIVERED' => 'bg-success',
-                                        'DELAYED' => 'bg-primary',
-                                        default => 'bg-gray-400',
-                                    };
-                                @endphp
-                                <span class="absolute -left-6 top-1 w-4 h-4 rounded-full border-2 border-white ring-2 ring-gray-100 {{ $dotBg }}"></span>
-                                
-                                <div class="flex items-start justify-between gap-2">
-                                    <div>
-                                        <p class="text-xs font-bold text-gray-900">{{ $tracking->location }}</p>
-                                        <div class="mt-1">
-                                            <x-badge :status="$tracking->status" />
-                                        </div>
-                                        @if($tracking->description)
-                                            <p class="text-xs text-gray-600 mt-1 bg-gray-50 p-2 rounded-btn border border-gray-100">{{ $tracking->description }}</p>
-                                        @endif
-                                        <p class="text-[10px] text-gray-400 mt-1">
-                                            {{ $tracking->tracked_at->format('d M Y H:i') }} &middot; {{ $tracking->user->name ?? 'Sistem' }}
-                                        </p>
-                                    </div>
-                                    <form action="{{ route('admin.shipments.tracking.destroy', [$shipment, $tracking]) }}" method="POST"
-                                          onsubmit="return confirm('Hapus update tracking ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1 text-gray-400 hover:text-primary transition" title="Hapus">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-center text-xs text-gray-400 py-6">Belum ada riwayat tracking.</p>
-                @endif
+                <button type="button" @click="detectCoordinates()" :disabled="detecting" class="btn-secondary !text-xs !py-1.5 !px-3 self-start sm:self-auto">
+                    <svg class="w-3.5 h-3.5 text-primary" :class="{ 'animate-spin': detecting }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span x-text="detecting ? 'Mencari Koordinat...' : 'Cari Koordinat Otomatis'"></span>
+                </button>
             </div>
 
-            <!-- Form Tambah Tracking Card -->
-            <div class="crm-card space-y-4">
-                <div class="border-b border-gray-100 pb-3">
-                    <h2 class="font-poppins font-bold text-base text-gray-900">Tambah Update Tracking</h2>
-                    <p class="text-xs text-gray-500">Perbarui posisi dan status fisik barang pengiriman.</p>
-                </div>
+            <form method="POST" action="{{ route('admin.shipments.tracking.store', $shipment) }}" class="space-y-4">
+                @csrf
 
-                <form method="POST" action="{{ route('admin.shipments.tracking.store', $shipment) }}" class="space-y-4">
-                    @csrf
-
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
-                        <label for="status" class="crm-label">Status <span class="text-primary">*</span></label>
+                        <label for="status" class="crm-label">Status Pengiriman <span class="text-primary">*</span></label>
                         <select id="status" name="status" required class="crm-input">
                             @foreach (\App\Enums\ShipmentStatus::cases() as $status)
                                 <option value="{{ $status->value }}" @selected(old('status') == $status->value)>{{ $status->label() }}</option>
@@ -275,23 +266,123 @@
                     </div>
 
                     <div>
-                        <label for="location" class="crm-label">Lokasi <span class="text-primary">*</span></label>
-                        <input id="location" type="text" name="location" value="{{ old('location') }}" placeholder="Contoh: Hub Cikampek" required class="crm-input">
+                        <label for="location" class="crm-label">Lokasi / Hub <span class="text-primary">*</span></label>
+                        <input id="location" type="text" name="location" x-model="location" value="{{ old('location') }}" placeholder="Contoh: Hub Pekanbaru / Gudang Medan" required class="crm-input">
                         @error('location') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label for="description" class="crm-label">Keterangan Catatan</label>
-                        <textarea id="description" name="description" rows="2" placeholder="Catatan posisi atau kondisi..." class="crm-input">{{ old('description') }}</textarea>
+                        <label for="tracked_at" class="crm-label">Waktu Update (WIB)</label>
+                        <input id="tracked_at" type="datetime-local" name="tracked_at" value="{{ old('tracked_at', now()->format('Y-m-d\TH:i')) }}" class="crm-input text-xs">
+                        @error('tracked_at') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="lg:col-span-2">
+                        <label for="address" class="crm-label">Alamat / Keterangan Titik</label>
+                        <input id="address" type="text" name="address" x-model="address" value="{{ old('address') }}" placeholder="Jl. Soekarno-Hatta No. 45" class="crm-input">
+                        @error('address') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
-                    <button type="submit" class="btn-primary w-full">
+                    <div>
+                        <label for="city" class="crm-label">Kota / Wilayah</label>
+                        <input id="city" type="text" name="city" x-model="city" value="{{ old('city') }}" placeholder="Pekanbaru" class="crm-input">
+                        @error('city') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="country" class="crm-label">Negara</label>
+                        <input id="country" type="text" name="country" x-model="country" value="{{ old('country', 'Indonesia') }}" placeholder="Indonesia" class="crm-input">
+                        @error('country') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <!-- Koordinat Geografis -->
+                <div class="p-3.5 bg-gray-50/80 rounded-card border border-gray-100 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-gray-700">Koordinat Peta (Latitude & Longitude)</span>
+                        <span class="text-[11px] text-gray-400">Boleh dikosongkan jika ingin sistem geocoding otomatis mengisinya saat disimpan.</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="latitude" class="crm-label text-xs">Latitude (-90 s/d 90)</label>
+                            <input id="latitude" type="number" step="any" name="latitude" x-model="lat" value="{{ old('latitude') }}" placeholder="Contoh: 0.5071" class="crm-input font-mono text-xs">
+                            @error('latitude') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="longitude" class="crm-label text-xs">Longitude (-180 s/d 180)</label>
+                            <input id="longitude" type="number" step="any" name="longitude" x-model="lng" value="{{ old('longitude') }}" placeholder="Contoh: 101.4478" class="crm-input font-mono text-xs">
+                            @error('longitude') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+                    <div x-show="geoNotice" x-cloak class="text-[11px] text-emerald-600 font-medium pt-1" x-text="geoNotice"></div>
+                </div>
+
+                <div>
+                    <label for="description" class="crm-label">Catatan Aktivitas / Keterangan Fisik</label>
+                    <textarea id="description" name="description" rows="2" placeholder="Contoh: Barang telah tiba di gudang transit Pekanbaru dan sedang disortir..." class="crm-input">{{ old('description') }}</textarea>
+                    @error('description') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button type="submit" class="btn-primary w-full sm:w-auto px-6">
                         + Simpan Update Tracking
                     </button>
-                </form>
-            </div>
-
+                </div>
+            </form>
         </div>
+
+        <script>
+            function trackingFormHelper() {
+                return {
+                    location: '{{ old('location') }}',
+                    address: '{{ old('address') }}',
+                    city: '{{ old('city') }}',
+                    country: '{{ old('country', 'Indonesia') }}',
+                    lat: '{{ old('latitude') }}',
+                    lng: '{{ old('longitude') }}',
+                    detecting: false,
+                    geoNotice: '',
+                    detectCoordinates() {
+                        var q = this.location.trim();
+                        if (!q) {
+                            alert('Silakan isi kolom Lokasi / Hub terlebih dahulu.');
+                            return;
+                        }
+                        this.detecting = true;
+                        this.geoNotice = '';
+
+                        var self = this;
+                        // Coba query Nominatim OSM
+                        var fullQuery = q;
+                        if (self.city && !q.toLowerCase().includes(self.city.toLowerCase())) {
+                            fullQuery += ', ' + self.city;
+                        }
+                        if (self.country && !fullQuery.toLowerCase().includes(self.country.toLowerCase())) {
+                            fullQuery += ', ' + self.country;
+                        }
+
+                        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(fullQuery) + '&limit=1')
+                            .then(function(res) { return res.json(); })
+                            .then(function(data) {
+                                self.detecting = false;
+                                if (data && data.length > 0) {
+                                    self.lat = parseFloat(data[0].lat).toFixed(6);
+                                    self.lng = parseFloat(data[0].lon).toFixed(6);
+                                    self.geoNotice = '✓ Koordinat berhasil ditemukan: ' + self.lat + ', ' + self.lng;
+                                } else {
+                                    self.geoNotice = 'Lokasi spesifik tidak ditemukan di peta, sistem backend akan mencoba kamus transit otomatis saat disimpan.';
+                                }
+                            })
+                            .catch(function() {
+                                self.detecting = false;
+                                self.geoNotice = 'Koneksi pencarian peta offline/terbatas. Sistem backend akan otomatis melengkapi koordinat saat disimpan.';
+                            });
+                    }
+                };
+            }
+        </script>
 
         <!-- 5. Dokumen Pengiriman & Upload Form -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

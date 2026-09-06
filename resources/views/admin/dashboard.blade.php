@@ -134,9 +134,9 @@
                                     <tr class="hover:bg-gray-50/80 transition-colors">
                                         <td class="px-3.5 py-2.5">
                                             <a href="{{ route('admin.shipments.show', $shipment) }}"
-                                               class="text-xs font-bold text-gray-900 hover:text-primary transition-colors block truncate"
-                                               title="{{ $shipment->shipment_number }}">
-                                                {{ $shipment->shipment_number }}
+                                               class="text-xs font-bold text-gray-900 hover:text-primary transition-colors block truncate font-mono"
+                                               title="{{ $shipment->display_code }}">
+                                                {{ $shipment->display_code }}
                                             </a>
                                         </td>
                                         <td class="px-3.5 py-2.5 min-w-0">
@@ -174,7 +174,7 @@
                         @forelse ($recentShipments as $shipment)
                             <a href="{{ route('admin.shipments.show', $shipment) }}" class="p-3 block hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center justify-between gap-2 mb-1 min-w-0">
-                                    <span class="text-xs font-bold text-gray-900 truncate">{{ $shipment->shipment_number }}</span>
+                                    <span class="text-xs font-bold text-gray-900 truncate font-mono">{{ $shipment->display_code }}</span>
                                     <x-badge :status="$shipment->status" />
                                 </div>
                                 <div class="flex items-center justify-between gap-2 min-w-0">
@@ -219,7 +219,7 @@
                                             <div class="min-w-0 flex-1">
                                                 <p class="text-xs font-bold text-gray-900 truncate">{{ $update->location }}</p>
                                                 <p class="text-[11px] text-gray-500 mt-0.5">
-                                                    {{ $update->shipment->shipment_number ?? '-' }}
+                                                    {{ $update->shipment->display_code ?? '-' }}
                                                 </p>
                                                 @if ($update->description)
                                                     <p class="text-[10px] text-gray-500 mt-0.5 bg-gray-50 p-1.5 rounded-btn border border-gray-100 break-words">{{ $update->description }}</p>
@@ -243,7 +243,7 @@
                                 @foreach ($activeShipments->take(5) as $shipment)
                                     <div class="p-3 rounded-btn bg-gray-50 border border-gray-100 space-y-2 hover:border-blue-100 transition-colors">
                                         <div class="flex items-center justify-between gap-2 min-w-0">
-                                            <span class="text-xs font-bold text-gray-900 truncate">{{ $shipment->shipment_number }}</span>
+                                            <span class="text-xs font-bold text-gray-900 truncate font-mono">{{ $shipment->display_code }}</span>
                                             <x-badge :status="$shipment->status" />
                                         </div>
                                         <p class="text-[11px] text-gray-500 truncate">

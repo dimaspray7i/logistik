@@ -98,22 +98,25 @@
                 <table class="crm-table">
                     <thead>
                         <tr>
-                            <th>No. Pengiriman</th>
+                        <tr>
+                            <th>No. / Resi Pengiriman</th>
                             <th>Rute</th>
-                            <th>Kendaraan</th>
+                            <th>Armada / Ekspedisi</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($order->shipments as $shipment)
                             <tr>
-                                <td class="font-bold text-gray-900">
+                                <td class="font-bold text-gray-900 font-mono">
                                     <a href="{{ route('admin.shipments.show', $shipment) }}" class="hover:text-primary transition">
-                                        {{ $shipment->shipment_number }}
+                                        {{ $shipment->display_code }}
                                     </a>
                                 </td>
                                 <td class="text-xs text-gray-600">{{ $shipment->origin }} &rarr; {{ $shipment->destination }}</td>
-                                <td class="text-xs text-gray-600">{{ $shipment->vehicle->plate_number ?? '-' }}</td>
+                                <td class="text-xs text-gray-600 font-medium">
+                                    {{ $shipment->isExternal() ? 'Ekspedisi ' . $shipment->carrier_label : ($shipment->vehicle->plate_number ?? 'Armada Internal') }}
+                                </td>
                                 <td>
                                     <x-badge :status="$shipment->status" />
                                 </td>

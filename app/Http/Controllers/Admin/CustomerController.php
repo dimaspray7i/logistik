@@ -77,13 +77,21 @@ class CustomerController extends Controller
 
     public function update(UpdateCustomerRequest $request, Customer $customer)
     {
-        $customer->update($request->validated());
+        DB::transaction(function () use ($request, $customer) {
+            $customer->update($request->validated());
 
-        \Illuminate\Support\Facades\Log::info('Admin: Customer updated', [
-            'admin_id' => auth()->id(),
-            'customer_id' => $customer->id,
-            'company_name' => $customer->company_name,
-        ]);
+            if ($customer->user) {
+                $customer->user->update([
+                    'name' => $request->name,
+                ]);
+            }
+
+            \Illuminate\Support\Facades\Log::info('Admin: Customer updated', [
+                'admin_id' => auth()->id(),
+                'customer_id' => $customer->id,
+                'company_name' => $customer->company_name,
+            ]);
+        });
 
         return redirect()->route('admin.customers.index')
             ->with('success', 'Customer berhasil diperbarui.');

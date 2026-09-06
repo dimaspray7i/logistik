@@ -21,13 +21,25 @@
                     <p class="text-xs text-gray-500">Identitas resmi dan alamat perusahaan pelanggan.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label for="company_name" class="crm-label">Nama Perusahaan <span class="text-primary">*</span></label>
                         <input id="company_name" type="text" name="company_name" value="{{ old('company_name') }}" required
                                placeholder="Contoh: PT Logistics Jaya"
                                class="crm-input @error('company_name') border-primary @enderror">
                         @error('company_name') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="shipment_code_prefix" class="crm-label">Prefix Kode Pengiriman Internal</label>
+                        <input id="shipment_code_prefix" type="text" name="shipment_code_prefix" value="{{ old('shipment_code_prefix') }}"
+                               placeholder="Contoh: ADJ"
+                               maxlength="10"
+                               class="crm-input uppercase font-mono @error('shipment_code_prefix') border-primary @enderror">
+                        <p class="text-[11px] text-gray-500 mt-1">
+                            Awalan kode khusus (misal: <strong>ADJ</strong> untuk PT Adijaya -> menghasilkan <strong>ADJ-19001</strong>).
+                        </p>
+                        @error('shipment_code_prefix') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>

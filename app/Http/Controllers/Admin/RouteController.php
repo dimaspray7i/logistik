@@ -45,16 +45,36 @@ class RouteController extends Controller
             // Hapus semua titik lama, lalu buat ulang sesuai urutan baru
             $route->points()->delete();
 
-            foreach ($request->points as $index => $point) {
+            $points = $request->input('points', []);
+            $pointsCount = count($points);
+            foreach ($points as $index => $point) {
+                $lat = (!empty($point['latitude']) && is_numeric($point['latitude'])) ? (float) $point['latitude'] : null;
+                $lng = (!empty($point['longitude']) && is_numeric($point['longitude'])) ? (float) $point['longitude'] : null;
+
+                // Auto-geocoding jika koordinat belum diisi manual
+                if (($lat === null || $lng === null) && !empty($point['location_name'])) {
+                    $geo = \App\Services\GeocodingService::geocode($point['location_name']);
+                    if ($geo) {
+                        $lat = $lat ?? $geo['latitude'];
+                        $lng = $lng ?? $geo['longitude'];
+                    }
+                }
+
                 $route->points()->create([
                     'sequence' => $index + 1,
                     'location_name' => $point['location_name'],
                     'address' => $point['address'] ?? null,
-                    'latitude' => $point['latitude'] ?? null,
-                    'longitude' => $point['longitude'] ?? null,
-                    'estimated_arrival' => $point['estimated_arrival'] ?? null,
+                    'latitude' => $lat,
+                    'longitude' => $lng,
+                    'estimated_arrival' => !empty($point['estimated_arrival']) ? $point['estimated_arrival'] : null,
                     'status' => 'PENDING',
                 ]);
+            }
+
+            // Sinkronkan Estimasi Tiba shipment dengan titik tujuan jika diisi
+            $lastPoint = $pointsCount > 0 ? $points[$pointsCount - 1] : null;
+            if ($lastPoint && !empty($lastPoint['estimated_arrival'])) {
+                $shipment->update(['estimated_arrival' => $lastPoint['estimated_arrival']]);
             }
         });
 

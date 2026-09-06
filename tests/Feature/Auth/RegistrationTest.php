@@ -16,7 +16,7 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_new_users_can_register(): void
+    public function test_new_users_cannot_self_register_and_are_redirected_to_admin(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -25,7 +25,8 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertGuest();
+        $response->assertRedirect(route('register'));
+        $response->assertSessionHas('status', 'Pendaftaran akun hanya dapat dilakukan melalui Administrator.');
     }
 }

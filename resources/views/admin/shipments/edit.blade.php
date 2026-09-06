@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="space-y-6">
 
-        <x-page-header title="Ubah Pengiriman" description="Perbarui data dan status pengiriman {{ $shipment->shipment_number }}.">
+        <x-page-header title="Ubah Pengiriman" description="Perbarui data, jenis pengiriman, dan status pengiriman {{ $shipment->display_code }}.">
             <x-slot name="actions">
                 <a href="{{ route('admin.shipments.show', $shipment) }}" class="btn-ghost">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -10,14 +10,19 @@
             </x-slot>
         </x-page-header>
 
-        <form method="POST" action="{{ route('admin.shipments.update', $shipment) }}">
+        <form method="POST" action="{{ route('admin.shipments.update', $shipment) }}"
+              x-data="{
+                  shippingType: '{{ old('shipping_type', is_object($shipment->shipping_type) ? $shipment->shipping_type->value : ($shipment->shipping_type ?? 'INTERNAL')) }}',
+                  carrierSelect: '{{ old('carrier', $shipment->carrier ?: 'JNE') }}',
+                  customCarrier: '{{ old('carrier_custom', '') }}'
+              }">
             @csrf
             @method('PUT')
 
-            {{-- ===== SECTION 1: Info Order (Read-only) ===== --}}
+            {{-- ===== SECTION 1: Info Order & Identitas ===== --}}
             <div class="crm-card mb-6">
                 <div class="border-b border-gray-100 pb-3 mb-4">
-                    <h2 class="font-poppins font-bold text-base text-gray-900">Referensi Order</h2>
+                    <h2 class="font-poppins font-bold text-base text-gray-900">Referensi Order & Identitas Kode</h2>
                     <p class="text-xs text-gray-500 mt-0.5">Order dan item tidak dapat diubah. Item mengikuti order asal.</p>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50 rounded-card p-4 border border-gray-100">
@@ -30,13 +35,69 @@
                         <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->customer->company_name ?? '-' }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-400 font-medium">No. Pengiriman</p>
-                        <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->shipment_number }}</p>
+                        <p class="text-xs text-gray-400 font-medium">Kode Internal Sistem</p>
+                        <p class="font-semibold text-gray-900 mt-0.5 font-mono">{{ $shipment->shipment_number }}</p>
                     </div>
                 </div>
             </div>
 
-            {{-- ===== SECTION 2: Detail Pengiriman ===== --}}
+            {{-- ===== SECTION 2: Jenis & Identitas Pengiriman ===== --}}
+            <div class="crm-card space-y-4 mb-6">
+                <div class="border-b border-gray-100 pb-3">
+                    <h2 class="font-poppins font-bold text-base text-gray-900">Metode & Identitas Pengiriman</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="crm-label">Jenis Pengiriman <span class="text-primary">*</span></label>
+                        <div class="grid grid-cols-2 gap-3 mt-1">
+                            <label class="flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition"
+                                   :class="shippingType === 'INTERNAL' ? 'border-primary bg-primary/5 text-gray-900 font-semibold' : 'border-gray-200 text-gray-600'">
+                                <input type="radio" name="shipping_type" value="INTERNAL" x-model="shippingType" class="text-primary focus:ring-primary">
+                                <span class="text-xs md:text-sm">Armada Perusahaan (Internal)</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition"
+                                   :class="shippingType === 'EXTERNAL' ? 'border-primary bg-primary/5 text-gray-900 font-semibold' : 'border-gray-200 text-gray-600'">
+                                <input type="radio" name="shipping_type" value="EXTERNAL" x-model="shippingType" class="text-primary focus:ring-primary">
+                                <span class="text-xs md:text-sm">Ekspedisi Eksternal</span>
+                            </label>
+                        </div>
+                        @error('shipping_type') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <div x-show="shippingType === 'INTERNAL'" x-transition>
+                            <label class="crm-label">Kode Pengiriman Internal</label>
+                            <input type="text" value="{{ $shipment->shipment_number }}" readonly
+                                   class="crm-input bg-gray-100 text-gray-700 cursor-not-allowed font-mono font-semibold">
+                        </div>
+
+                        <div x-show="shippingType === 'EXTERNAL'" x-transition class="space-y-3">
+                            <div>
+                                <label for="carrier" class="crm-label">Jasa Pengiriman / Carrier <span class="text-primary">*</span></label>
+                                <select id="carrier" name="carrier" x-model="carrierSelect" :required="shippingType === 'EXTERNAL'"
+                                        class="crm-input @error('carrier') border-primary @enderror">
+                                    @foreach ($carriers as $c)
+                                        <option value="{{ $c }}">{{ $c }}</option>
+                                    @endforeach
+                                </select>
+                                @error('carrier') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div>
+                                <label for="tracking_number" class="crm-label">Nomor Resi Original <span class="text-primary">*</span></label>
+                                <input id="tracking_number" type="text" name="tracking_number" value="{{ old('tracking_number', $shipment->tracking_number) }}"
+                                       placeholder="Contoh: JNE123456789"
+                                       :required="shippingType === 'EXTERNAL'"
+                                       class="crm-input font-mono @error('tracking_number') border-primary @enderror">
+                                @error('tracking_number') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ===== SECTION 3: Detail Pengiriman ===== --}}
             <div class="crm-card space-y-4 mb-6">
                 <div class="border-b border-gray-100 pb-3">
                     <h2 class="font-poppins font-bold text-base text-gray-900">Detail Pengiriman</h2>
@@ -57,9 +118,9 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div x-show="shippingType === 'INTERNAL'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/70 p-3 rounded-lg border border-gray-100">
                     <div>
-                        <label for="vehicle_id" class="crm-label">Kendaraan</label>
+                        <label for="vehicle_id" class="crm-label">Kendaraan Internal</label>
                         <select id="vehicle_id" name="vehicle_id" class="crm-input">
                             <option value="">-- Tanpa Kendaraan --</option>
                             @foreach ($vehicles as $vehicle)
@@ -70,7 +131,7 @@
                         </select>
                     </div>
                     <div>
-                        <label for="driver_id" class="crm-label">Supir / Driver</label>
+                        <label for="driver_id" class="crm-label">Supir / Driver Internal</label>
                         <select id="driver_id" name="driver_id" class="crm-input">
                             <option value="">-- Tanpa Supir --</option>
                             @foreach ($drivers as $driver)
@@ -107,8 +168,7 @@
                     <label for="status" class="crm-label">Status <span class="text-primary">*</span></label>
                     <select id="status" name="status" required class="crm-input">
                         @foreach (\App\Enums\ShipmentStatus::cases() as $s)
-                            {{-- PENTING: value harus $s->value (misal: "DELIVERED"), bukan label --}}
-                            <option value="{{ $s->value }}" @selected(old('status', $shipment->status->value) === $s->value)>
+                            <option value="{{ $s->value }}" @selected(old('status', is_object($shipment->status) ? $shipment->status->value : $shipment->status) === $s->value)>
                                 {{ $s->label() }}
                             </option>
                         @endforeach
@@ -122,8 +182,8 @@
                 </div>
             </div>
 
-            {{-- ===== SECTION 3: Informasi Pembayaran ===== --}}
-            <div class="crm-card space-y-4 mb-6" x-data="{ paymentStatus: '{{ old('invoice_payment_status', $shipment->invoice_payment_status?->value ?? 'Belum Dibayar') }}' }">
+            {{-- ===== SECTION 4: Informasi Pembayaran ===== --}}
+            <div class="crm-card space-y-4 mb-6" x-data="{ paymentStatus: '{{ old('invoice_payment_status', is_object($shipment->invoice_payment_status) ? $shipment->invoice_payment_status->value : ($shipment->invoice_payment_status ?? 'Belum Dibayar')) }}' }">
                 <div class="border-b border-gray-100 pb-3">
                     <h2 class="font-poppins font-bold text-base text-gray-900">Informasi Pembayaran</h2>
                     <p class="text-xs text-gray-500 mt-0.5">Status pembayaran invoice dan tanggal pencairan dana.</p>
@@ -135,7 +195,7 @@
                         <select id="invoice_payment_status" name="invoice_payment_status" x-model="paymentStatus" required
                                 class="crm-input @error('invoice_payment_status') border-primary @enderror">
                             @foreach (\App\Enums\InvoicePaymentStatus::cases() as $s)
-                                <option value="{{ $s->value }}" @selected(old('invoice_payment_status', $shipment->invoice_payment_status?->value ?? 'Belum Dibayar') === $s->value)>
+                                <option value="{{ $s->value }}" @selected(old('invoice_payment_status', is_object($shipment->invoice_payment_status) ? $shipment->invoice_payment_status->value : ($shipment->invoice_payment_status ?? 'Belum Dibayar')) === $s->value)>
                                     {{ $s->label() }}
                                 </option>
                             @endforeach

@@ -27,7 +27,10 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(
+            \App\Contracts\CarrierTrackingServiceInterface::class,
+            \App\Services\Tracking\GenericCarrierTrackingService::class
+        );
     }
 
     public function boot(): void

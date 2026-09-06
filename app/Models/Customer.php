@@ -12,8 +12,18 @@ class Customer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'company_name', 'phone', 'email', 'address', 'city', 'province', 'postal_code', 'notes'
+        'name', 'company_name', 'shipment_code_prefix', 'phone', 'email', 'address', 'city', 'province', 'postal_code', 'notes'
     ];
+
+    public function setShipmentCodePrefixAttribute($value): void
+    {
+        if (empty($value) || trim((string) $value) === '') {
+            $this->attributes['shipment_code_prefix'] = null;
+        } else {
+            $sanitized = preg_replace('/[^A-Za-z0-9]/', '', (string) $value);
+            $this->attributes['shipment_code_prefix'] = !empty($sanitized) ? strtoupper($sanitized) : null;
+        }
+    }
 
     public function contacts(): HasMany
     {

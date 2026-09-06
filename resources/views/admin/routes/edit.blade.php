@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="space-y-6">
 
-        <x-page-header title="Kelola Rute & Transit" description="Pengiriman {{ $shipment->shipment_number }} ({{ $shipment->origin }} → {{ $shipment->destination }})">
+        <x-page-header title="Kelola Rute & Transit" description="Pengiriman {{ $shipment->display_code }} ({{ $shipment->origin }} → {{ $shipment->destination }})">
             <x-slot name="actions">
                 <a href="{{ route('admin.shipments.show', $shipment) }}" class="btn-secondary">
                     &larr; Kembali ke Pengiriman
@@ -22,51 +22,28 @@
                 <x-badge :status="$shipment->status" />
             </div>
         </div>
+        @php
+            $routePointsData = $shipment->route && $shipment->route->points->count() > 0
+                ? $shipment->route->points->map(fn($p) => [
+                    'location_name'    => $p->location_name,
+                    'address'          => $p->address ?? '',
+                    'latitude'         => $p->latitude !== null ? (string) $p->latitude : '',
+                    'longitude'        => $p->longitude !== null ? (string) $p->longitude : '',
+                    'estimated_arrival' => $p->estimated_arrival?->format('Y-m-d\TH:i') ?? '',
+                ])->values()->all()
+                : [
+                    ['location_name' => $shipment->origin,      'address' => '', 'latitude' => '', 'longitude' => '', 'estimated_arrival' => ''],
+                    ['location_name' => $shipment->destination,  'address' => '', 'latitude' => '', 'longitude' => '', 'estimated_arrival' => ''],
+                ];
+        @endphp
+        <script>
+            window.__routeInitialPoints = @json($routePointsData);
+        </script>
 
         <!-- Form Rute Card -->
         <div class="crm-card p-6">
             <form method="POST" action="{{ route('admin.shipments.route.store', $shipment) }}"
-                  x-data="{
-                      points: {{ Js::from(
-                          $shipment->route && $shipment->route->points->count() > 0
-                          ? $shipment->route->points->map(fn($p) => [
-                              'location_name' => $p->location_name,
-                              'address' => $p->address ?? '',
-                              'latitude' => $p->latitude ?? '',
-                              'longitude' => $p->longitude ?? '',
-                              'estimated_arrival' => $p->estimated_arrival?->format('Y-m-d\TH:i') ?? '',
-                          ])
-                          : [
-                              ['location_name' => $shipment->origin, 'address' => '', 'latitude' => '', 'longitude' => '', 'estimated_arrival' => ''],
-                              ['location_name' => $shipment->destination, 'address' => '', 'latitude' => '', 'longitude' => '', 'estimated_arrival' => ''],
-                          ]
-                      ) }},
-                      addPoint() {
-                          const lastIndex = this.points.length - 1;
-                          this.points.splice(lastIndex, 0, {
-                              location_name: '', address: '', latitude: '', longitude: '', estimated_arrival: ''
-                          });
-                      },
-                      removePoint(index) {
-                          if (this.points.length > 2) {
-                              this.points.splice(index, 1);
-                          }
-                      },
-                      moveUp(index) {
-                          if (index > 0) {
-                              const temp = this.points[index - 1];
-                              this.points[index - 1] = this.points[index];
-                              this.points[index] = temp;
-                          }
-                      },
-                      moveDown(index) {
-                          if (index < this.points.length - 1) {
-                              const temp = this.points[index + 1];
-                              this.points[index + 1] = this.points[index];
-                              this.points[index] = temp;
-                          }
-                      }
-                  }}">
+                  x-data="routeManager">
                 @csrf
 
                 <!-- Distance & Duration -->
@@ -129,7 +106,8 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <!-- Koordinat & ETA (Hanya titik tujuan yang memiliki ETA Pengiriman) -->
+                            <div :class="index === points.length - 1 ? 'grid grid-cols-1 md:grid-cols-3 gap-3' : 'grid grid-cols-1 md:grid-cols-2 gap-3'">
                                 <div>
                                     <label class="crm-label text-xs">Latitude</label>
                                     <input type="number" step="any" :name="'points[' + index + '][latitude]'" x-model="point.latitude"
@@ -142,11 +120,13 @@
                                            placeholder="Contoh: 106.8456"
                                            class="crm-input text-xs">
                                 </div>
-                                <div>
-                                    <label class="crm-label text-xs">Estimasi Tiba</label>
-                                    <input type="datetime-local" :name="'points[' + index + '][estimated_arrival]'" x-model="point.estimated_arrival"
-                                           class="crm-input text-xs">
-                                </div>
+                                <template x-if="index === points.length - 1">
+                                    <div>
+                                        <label class="crm-label text-xs">Estimasi Tiba Pengiriman (ETA)</label>
+                                        <input type="datetime-local" :name="'points[' + index + '][estimated_arrival]'" x-model="point.estimated_arrival"
+                                               class="crm-input text-xs">
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </template>
@@ -163,4 +143,50 @@
         </div>
 
     </div>
+
+    {{-- Alpine component definition: didaftarkan lewat alpine:init agar tersedia sebelum Alpine menginisialisasi DOM --}}
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('routeManager', () => ({
+                // Baca initial data dari window variable yang di-inject PHP di atas.
+                // Fallback ke array 2 titik kosong jika tidak tersedia.
+                points: (window.__routeInitialPoints && Array.isArray(window.__routeInitialPoints) && window.__routeInitialPoints.length >= 2)
+                    ? window.__routeInitialPoints
+                    : [
+                        { location_name: '', address: '', latitude: '', longitude: '', estimated_arrival: '' },
+                        { location_name: '', address: '', latitude: '', longitude: '', estimated_arrival: '' }
+                    ],
+
+                addPoint() {
+                    // Sisipkan titik transit baru SEBELUM titik tujuan (titik terakhir)
+                    const lastIndex = this.points.length - 1;
+                    this.points.splice(lastIndex, 0, {
+                        location_name: '', address: '', latitude: '', longitude: '', estimated_arrival: ''
+                    });
+                },
+
+                removePoint(index) {
+                    if (this.points.length > 2) {
+                        this.points.splice(index, 1);
+                    }
+                },
+
+                moveUp(index) {
+                    if (index > 0) {
+                        const temp = this.points[index - 1];
+                        this.points[index - 1] = this.points[index];
+                        this.points[index] = temp;
+                    }
+                },
+
+                moveDown(index) {
+                    if (index < this.points.length - 1) {
+                        const temp = this.points[index + 1];
+                        this.points[index + 1] = this.points[index];
+                        this.points[index] = temp;
+                    }
+                }
+            }));
+        });
+    </script>
 </x-app-layout>

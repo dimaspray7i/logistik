@@ -111,7 +111,7 @@
                         <a href="{{ route('customer.shipments.show', $shipment) }}" 
                            class="flex items-center justify-between p-4 bg-gray-50/80 rounded-btn border border-gray-100 hover:border-primary/40 hover:bg-white transition group">
                             <div>
-                                <p class="text-sm font-bold text-gray-900 group-hover:text-primary transition">{{ $shipment->shipment_number }}</p>
+                                <p class="text-sm font-bold text-gray-900 group-hover:text-primary transition font-mono">{{ $shipment->display_code }}</p>
                                 <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
                                     <span>{{ $shipment->origin }}</span>
                                     <span class="text-gray-400">&rarr;</span>

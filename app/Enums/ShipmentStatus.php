@@ -18,7 +18,7 @@ enum ShipmentStatus: string
             self::DRAFT => 'Draf',
             self::READY => 'Siap Dikirim',
             self::IN_TRANSIT => 'Dalam Perjalanan',
-            self::ARRIVED => 'Tiba di Tujuan',
+            self::ARRIVED => 'Tiba di Hub',
             self::DELIVERED => 'Terkirim',
             self::DELAYED => 'Tertunda',
             self::CANCELLED => 'Dibatalkan',

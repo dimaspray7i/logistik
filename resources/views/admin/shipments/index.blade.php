@@ -18,9 +18,15 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}" 
-                           placeholder="Cari nomor pengiriman, kota asal/tujuan, atau customer..."
+                           placeholder="Cari kode pengiriman, nomor resi, carrier, kota, atau customer..."
                            class="crm-input pl-10">
                 </div>
+
+                <select name="shipping_type" class="crm-input md:w-44">
+                    <option value="">Semua Jenis</option>
+                    <option value="INTERNAL" @selected(request('shipping_type') == 'INTERNAL')>Armada Internal</option>
+                    <option value="EXTERNAL" @selected(request('shipping_type') == 'EXTERNAL')>Ekspedisi Eksternal</option>
+                </select>
                 
                 <select name="customer_id" class="crm-input md:w-48">
                     <option value="">Semua Pelanggan</option>
@@ -55,10 +61,11 @@
                 <table class="crm-table">
                     <thead>
                         <tr>
-                            <th>No. Pengiriman</th>
+                            <th>Jenis & Identitas</th>
+                            <th>Kode / Resi</th>
                             <th>Pelanggan</th>
                             <th>Rute asal &rarr; Tujuan</th>
-                            <th>Armada Kendaraan</th>
+                            <th>Armada / Expedisi</th>
                             <th>Status</th>
                             <th>Pembayaran</th>
                             <th>Estimasi Tiba</th>
@@ -68,10 +75,26 @@
                     <tbody>
                         @forelse ($shipments as $shipment)
                             <tr class="hover:bg-gray-50/80 transition-colors">
+                                <td>
+                                    @if ($shipment->isExternal())
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                            <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                            <span>{{ $shipment->carrier_label }}</span>
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                            <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+                                            <span>Armada Internal</span>
+                                        </span>
+                                    @endif
+                                </td>
                                 <td class="font-bold text-gray-900">
-                                    <a href="{{ route('admin.shipments.show', $shipment) }}" class="hover:text-primary transition">
-                                        {{ $shipment->shipment_number }}
+                                    <a href="{{ route('admin.shipments.show', $shipment) }}" class="hover:text-primary transition font-mono">
+                                        {{ $shipment->display_code }}
                                     </a>
+                                    @if ($shipment->isExternal() && $shipment->tracking_number && $shipment->shipment_number)
+                                        <div class="text-[10px] text-gray-400 font-normal">Internal: {{ $shipment->shipment_number }}</div>
+                                    @endif
                                 </td>
                                 <td class="text-xs text-gray-800 font-medium">
                                     {{ $shipment->customer->company_name ?? '-' }}
@@ -80,7 +103,11 @@
                                     {{ $shipment->origin }} &rarr; {{ $shipment->destination }}
                                 </td>
                                 <td class="text-xs text-gray-600">
-                                    {{ $shipment->vehicle->plate_number ?? '-' }}
+                                    @if ($shipment->isExternal())
+                                        <span class="font-medium text-gray-700">{{ $shipment->carrier }}</span>
+                                    @else
+                                        {{ $shipment->vehicle->plate_number ?? '-' }}
+                                    @endif
                                 </td>
                                 <td>
                                     <x-badge :status="$shipment->status" />
@@ -123,7 +150,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-12 text-center text-gray-500">
+                                <td colspan="9" class="py-12 text-center text-gray-500">
                                     <p class="text-sm">Tidak ada data pengiriman yang ditemukan.</p>
                                 </td>
                             </tr>

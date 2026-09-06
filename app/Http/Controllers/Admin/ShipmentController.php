@@ -29,6 +29,8 @@ class ShipmentController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('shipment_number', 'like', "%{$search}%")
+                  ->orWhere('tracking_number', 'like', "%{$search}%")
+                  ->orWhere('carrier', 'like', "%{$search}%")
                   ->orWhere('origin', 'like', "%{$search}%")
                   ->orWhere('destination', 'like', "%{$search}%")
                   ->orWhereHas('customer', function ($cq) use ($search) {
@@ -43,6 +45,10 @@ class ShipmentController extends Controller
             if ($validStatus) {
                 $query->where('status', $request->status);
             }
+        }
+
+        if ($request->filled('shipping_type')) {
+            $query->where('shipping_type', $request->shipping_type);
         }
 
         if ($request->filled('customer_id')) {
@@ -67,6 +73,7 @@ class ShipmentController extends Controller
 
         $vehicles = Vehicle::where('status', 'AVAILABLE')->orWhere('status', 'IN_USE')->get();
         $drivers = Driver::where('status', 'ACTIVE')->get();
+        $carriers = config('shipment.carriers', ['JNE', 'J&T', 'SiCepat', 'Pos Indonesia', 'DHL', 'FedEx']);
 
         // Jika ada query parameter order_id, pre-select order tersebut
         $selectedOrder = null;
@@ -74,7 +81,9 @@ class ShipmentController extends Controller
             $selectedOrder = Order::with(['customer', 'items.product'])->find($request->order_id);
         }
 
-        return view('admin.shipments.create', compact('orders', 'vehicles', 'drivers', 'selectedOrder'));
+        $nextInternalCode = \App\Services\ShipmentCodeGenerator::generate($selectedOrder?->customer);
+
+        return view('admin.shipments.create', compact('orders', 'vehicles', 'drivers', 'carriers', 'nextInternalCode', 'selectedOrder'));
     }
 
     public function store(StoreShipmentRequest $request)
@@ -82,20 +91,30 @@ class ShipmentController extends Controller
         $this->authorize('create', Shipment::class);
 
         DB::transaction(function () use ($request) {
-            $order = Order::with('items')->findOrFail($request->order_id);
+            $order = Order::with(['customer', 'items'])->findOrFail($request->order_id);
+            $customer = $order->customer;
 
-            // Generate shipment number
-            $shipmentNumber = 'SHP-' . date('Ymd') . '-' . str_pad(Shipment::count() + 1, 3, '0', STR_PAD_LEFT);
+            // Generate unique internal shipment code safely using customer's prefix
+            $shipmentNumber = \App\Services\ShipmentCodeGenerator::generate($customer);
+
+            $shippingType = $request->input('shipping_type', 'INTERNAL');
+            $isExternal = ($shippingType === 'EXTERNAL');
+
+            $carrier = $isExternal ? $request->input('carrier') : null;
+            $trackingNumber = $isExternal ? $request->input('tracking_number') : null;
 
             $paymentStatus = $request->input('invoice_payment_status', 'Belum Dibayar');
             $paymentDate = ($paymentStatus === 'Sudah Dibayar') ? $request->input('invoice_payment_date') : null;
 
             $shipment = Shipment::create([
                 'shipment_number' => $shipmentNumber,
+                'shipping_type' => $shippingType,
+                'carrier' => $carrier,
+                'tracking_number' => $trackingNumber,
                 'order_id' => $order->id,
                 'customer_id' => $order->customer_id,
-                'vehicle_id' => $request->vehicle_id,
-                'driver_id' => $request->driver_id,
+                'vehicle_id' => $isExternal ? null : $request->vehicle_id,
+                'driver_id' => $isExternal ? null : $request->driver_id,
                 'origin' => $request->origin,
                 'destination' => $request->destination,
                 'departure_date' => $request->departure_date,
@@ -118,8 +137,8 @@ class ShipmentController extends Controller
                 ]);
             }
 
-            // Update status vehicle jika di-assign
-            if ($request->vehicle_id && in_array($request->status, ['READY', 'IN_TRANSIT'])) {
+            // Update status vehicle jika di-assign (hanya untuk internal)
+            if (!$isExternal && $request->vehicle_id && in_array($request->status, ['READY', 'IN_TRANSIT'])) {
                 Vehicle::where('id', $request->vehicle_id)->update(['status' => 'IN_USE']);
             }
 
@@ -127,6 +146,8 @@ class ShipmentController extends Controller
                 'admin_id' => auth()->id(),
                 'shipment_id' => $shipment->id,
                 'shipment_number' => $shipment->shipment_number,
+                'shipping_type' => $shipment->shipping_type?->value ?? $shipment->shipping_type,
+                'tracking_number' => $shipment->tracking_number,
                 'customer_id' => $shipment->customer_id,
             ]);
         });
@@ -143,7 +164,10 @@ class ShipmentController extends Controller
         'items.product', 'route.points', 'trackingUpdates.user', 
         'trackingUpdates.routePoint', 'documents']);
 
-        return view('admin.shipments.show', compact('shipment'));
+        $carrierTrackingService = app(\App\Contracts\CarrierTrackingServiceInterface::class);
+        $externalTrackingInfo = $shipment->isExternal() ? $carrierTrackingService->getTrackingDetails($shipment) : null;
+
+        return view('admin.shipments.show', compact('shipment', 'externalTrackingInfo'));
     }
 
     public function edit(Shipment $shipment)
@@ -153,8 +177,9 @@ class ShipmentController extends Controller
         $shipment->load(['order', 'items']);
         $vehicles = Vehicle::all();
         $drivers = Driver::all();
+        $carriers = config('shipment.carriers', ['JNE', 'J&T', 'SiCepat', 'Pos Indonesia', 'DHL', 'FedEx']);
 
-        return view('admin.shipments.edit', compact('shipment', 'vehicles', 'drivers'));
+        return view('admin.shipments.edit', compact('shipment', 'vehicles', 'drivers', 'carriers'));
     }
 
     public function update(UpdateShipmentRequest $request, Shipment $shipment)
@@ -163,14 +188,24 @@ class ShipmentController extends Controller
 
         DB::transaction(function () use ($request, $shipment) {
             $oldVehicleId = $shipment->vehicle_id;
-            $newVehicleId = $request->vehicle_id;
+            
+            $shippingType = $request->input('shipping_type', 'INTERNAL');
+            $isExternal = ($shippingType === 'EXTERNAL');
+            $newVehicleId = $isExternal ? null : $request->vehicle_id;
+            $newDriverId = $isExternal ? null : $request->driver_id;
+
+            $carrier = $isExternal ? $request->input('carrier') : null;
+            $trackingNumber = $isExternal ? $request->input('tracking_number') : null;
 
             $paymentStatus = $request->input('invoice_payment_status', 'Belum Dibayar');
             $paymentDate = ($paymentStatus === 'Sudah Dibayar') ? $request->input('invoice_payment_date') : null;
 
             $shipment->update([
-                'vehicle_id' => $request->vehicle_id,
-                'driver_id' => $request->driver_id,
+                'shipping_type' => $shippingType,
+                'carrier' => $carrier,
+                'tracking_number' => $trackingNumber,
+                'vehicle_id' => $newVehicleId,
+                'driver_id' => $newDriverId,
                 'origin' => $request->origin,
                 'destination' => $request->destination,
                 'departure_date' => $request->departure_date,
@@ -202,6 +237,7 @@ class ShipmentController extends Controller
                 'admin_id' => auth()->id(),
                 'shipment_id' => $shipment->id,
                 'shipment_number' => $shipment->shipment_number,
+                'shipping_type' => $shipment->shipping_type?->value ?? $shipment->shipping_type,
                 'status' => $shipment->status?->value ?? $shipment->status,
             ]);
         });

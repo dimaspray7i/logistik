@@ -11,9 +11,23 @@ class UpdateShipmentRequest extends FormRequest
         return $this->user()->can('update', $this->route('shipment'));
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (!$this->has('shipping_type') || is_null($this->input('shipping_type'))) {
+            $shipment = $this->route('shipment');
+            $currentType = $shipment ? (is_object($shipment->shipping_type) ? $shipment->shipping_type->value : $shipment->shipping_type) : 'INTERNAL';
+            $this->merge([
+                'shipping_type' => $currentType ?: 'INTERNAL',
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [
+            'shipping_type' => ['nullable', 'string', 'in:INTERNAL,EXTERNAL'],
+            'carrier' => ['required_if:shipping_type,EXTERNAL', 'nullable', 'string', 'max:255'],
+            'tracking_number' => ['required_if:shipping_type,EXTERNAL', 'nullable', 'string', 'max:255'],
             'vehicle_id' => ['nullable', 'exists:vehicles,id'],
             'driver_id' => ['nullable', 'exists:drivers,id'],
             'origin' => ['required', 'string', 'max:255'],
@@ -31,6 +45,10 @@ class UpdateShipmentRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'shipping_type.required' => 'Jenis pengiriman wajib dipilih.',
+            'shipping_type.in' => 'Jenis pengiriman yang dipilih tidak valid.',
+            'carrier.required_if' => 'Jasa pengiriman / operator wajib diisi jika memilih Ekspedisi Eksternal.',
+            'tracking_number.required_if' => 'Nomor resi / pelacakan wajib diisi jika memilih Ekspedisi Eksternal.',
             'invoice_payment_status.required' => 'Status Pencairan Invoice wajib dipilih.',
             'invoice_payment_status.in' => 'Status Pencairan Invoice yang dipilih tidak valid.',
             'invoice_payment_date.required_if' => 'Tanggal Pencairan wajib diisi jika Status Pencairan Invoice adalah Sudah Dibayar.',

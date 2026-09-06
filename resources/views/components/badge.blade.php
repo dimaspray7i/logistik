@@ -32,7 +32,7 @@
         'DRAFT', 'DRAF' => 'Draf',
         'READY', 'SIAP KIRIM', 'SIAP DIKIRIM' => 'Siap Dikirim',
         'IN_TRANSIT', 'DALAM PERJALANAN', 'DALAM TRANSIT' => 'Dalam Perjalanan',
-        'ARRIVED', 'TIBA' => 'Tiba di Tujuan',
+        'ARRIVED', 'TIBA DI HUB', 'TIBA DI TUJUAN', 'TIBA' => 'Tiba di Hub',
         'DELIVERED', 'TERKIRIM' => 'Terkirim',
         'DELAYED', 'TERTUNDA' => 'Tertunda',
         'CANCELLED', 'DIBATALKAN' => 'Dibatalkan',
