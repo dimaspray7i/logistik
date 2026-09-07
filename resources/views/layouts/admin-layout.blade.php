@@ -15,14 +15,14 @@
         <!-- Vite Assets -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased bg-cream text-gray-900" x-data="{ sidebarOpen: false }">
-        <div class="min-h-screen flex w-full">
+    <body class="font-sans antialiased bg-cream text-gray-900 h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
+        <div class="h-screen flex w-full overflow-hidden">
             
             <!-- Reusable Admin Sidebar Component -->
             <x-sidebar role="admin" />
 
             <!-- Main Area -->
-            <div class="flex-1 flex flex-col min-w-0">
+            <div class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
                 
                 <!-- Reusable Topbar Component -->
                 <x-topbar />

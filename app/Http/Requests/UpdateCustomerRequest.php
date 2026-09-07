@@ -34,7 +34,9 @@ class UpdateCustomerRequest extends FormRequest
     public function rules(): array
     {
         $customer = $this->route('customer');
-        $customerId = $customer instanceof Customer ? $customer->id : $customer;
+        $customerId = $customer instanceof Customer
+            ? $customer->id
+            : (is_numeric($customer) ? (int) $customer : Customer::where('id', $customer)->value('id'));
 
         return [
             'name' => ['required', 'string', 'max:255'],

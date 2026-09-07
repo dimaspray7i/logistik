@@ -5,12 +5,12 @@
 <header class="h-16 bg-white border-b border-gray-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-20 shadow-xs">
     <!-- Left: Mobile Menu Toggle & Title -->
     <div class="flex items-center gap-3">
-        <button @click="sidebarOpen = !sidebarOpen" aria-label="Buka menu" class="lg:hidden p-2 rounded-btn text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200">
+        <button @click="sidebarOpen = !sidebarOpen" aria-label="Buka menu" class="md:hidden p-2 rounded-btn text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
 
         <!-- Mobile Logo & Brand Title -->
-        <div class="lg:hidden flex items-center gap-2">
+        <div class="md:hidden flex items-center gap-2">
             <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm shadow-xs">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
             </div>

@@ -296,7 +296,7 @@
             @endif
 
             <!-- Summary Chips -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5 pt-4 border-t border-gray-50 text-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-5 pt-4 border-t border-gray-50 text-xs">
                 <div class="p-3 bg-[#FAF8F5] rounded-btn border border-gray-100">
                     <span class="text-gray-400 block font-medium">Lokasi Terkini</span>
                     <span class="font-bold text-gray-900 mt-0.5 block truncate text-sm" title="{{ $lastLocationName }}">
@@ -402,10 +402,10 @@
         </div>
 
         <!-- 3. Dual Layout: Peta Interaktif & Timeline Perjalanan -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-3">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 pt-3">
 
             <!-- LEFT / TOP: PETA INTERAKTIF (7 Kolom Desktop) -->
-            <div class="lg:col-span-7 flex flex-col">
+            <div class="md:col-span-7 flex flex-col">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                         <h3 class="font-poppins font-bold text-sm text-gray-900 flex items-center gap-1.5">
@@ -421,7 +421,7 @@
                 </div>
 
                 <!-- Container Peta Leaflet -->
-                <div class="relative w-full h-[360px] sm:h-[420px] lg:h-[480px] rounded-card border border-gray-200 overflow-hidden bg-gray-100 shadow-inner">
+                <div class="relative w-full h-[320px] sm:h-[380px] md:h-[420px] lg:h-[480px] rounded-card border border-gray-200 overflow-hidden bg-gray-100 shadow-inner">
                     <div id="{{ $mapElementId }}" class="w-full h-full z-0"></div>
 
                     <!-- Quick Map Viewport Controls -->
@@ -488,7 +488,7 @@
             </div>
 
             <!-- RIGHT / BOTTOM: TIMELINE PERJALANAN (5 Kolom Desktop) -->
-            <div class="lg:col-span-5 flex flex-col">
+            <div class="md:col-span-5 flex flex-col">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="font-poppins font-bold text-sm text-gray-900 flex items-center gap-1.5">
                         <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -497,7 +497,7 @@
                     <span class="text-xs text-gray-400 font-medium">Klik checkpoint untuk fokus di peta</span>
                 </div>
 
-                <div class="p-4 bg-[#FAF8F5] rounded-card border border-gray-100 flex-1 overflow-y-auto max-h-[480px]">
+                <div class="p-4 bg-[#FAF8F5] rounded-card border border-gray-100 flex-1 overflow-y-auto max-h-[320px] sm:max-h-[400px] md:max-h-[480px]">
                     @php
                         $hasTrackingUpdates = $trackingsDesc->count() > 0;
                         $originHasGps = $originCoord !== null;

@@ -128,3 +128,97 @@
         @apply flex-1 rounded-sm transition-all duration-300;
     }
 }
+
+/* ============================================================
+   GLOBAL RESPONSIVE SAFEGUARDS
+   Prevents horizontal overflow at page level while allowing
+   controlled scrolling within specific containers (tables, etc)
+   ============================================================ */
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    max-width: 100vw;
+}
+
+/* Ensure main layout flex container fills viewport without overflow */
+.h-screen.flex.w-full {
+    max-width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* ============================================================
+   TABLE RESPONSIVE
+   Tables use horizontal scroll within their container, not page
+   ============================================================ */
+.crm-table-container {
+    /* Override any inherited width issues */
+    min-width: 0;
+}
+
+/* ============================================================
+   SIDEBAR HEIGHT — Smooth tablet & mobile behavior
+   ============================================================ */
+aside {
+    /* Ensure sidebar fills viewport height properly on all devices */
+    height: 100vh;
+    height: 100dvh; /* dynamic viewport height — mobile browser chrome safe */
+}
+
+/* ============================================================
+   TABLET TOPBAR PADDING
+   On md, topbar should not be cramped
+   ============================================================ */
+@media (min-width: 768px) and (max-width: 1023px) {
+    header.sticky {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* ============================================================
+   FILTER FORM WRAP FIX
+   Prevent filter bar from causing horizontal overflow on tablet
+   ============================================================ */
+.filter-form-row {
+    flex-wrap: wrap;
+}
+
+/* ============================================================
+   MAP CONTAINER — Ensure Leaflet map never overflows
+   ============================================================ */
+.leaflet-container {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* ============================================================
+   MODAL IMPROVEMENTS
+   Ensure modal is always within viewport on tablet
+   ============================================================ */
+@media (min-width: 640px) and (max-width: 1023px) {
+    .fixed.inset-0.overflow-y-auto.px-3 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* ============================================================
+   TRACKING TIMELINE — Ensure text wraps properly
+   ============================================================ */
+.timeline-item-active {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* ============================================================
+   PAGINATION — Ensure pagination wraps on small viewports
+   ============================================================ */
+nav[aria-label="Pagination Navigation"] {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}

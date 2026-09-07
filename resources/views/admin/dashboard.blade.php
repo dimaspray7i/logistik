@@ -33,7 +33,7 @@
         {{-- =============================================
              2. KPI CARDS GRID — 6 compact cards in 1 row
              ============================================= --}}
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3">
 
             {{-- Card 1: Total Pelanggan --}}
             <a href="{{ route('admin.customers.index') }}" class="kpi-card group block">
@@ -100,10 +100,10 @@
         {{-- =============================================
              3. MAIN SECTION: RECENT SHIPMENTS + LIVE TRACKING
              ============================================= --}}
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
 
             {{-- RECENT SHIPMENTS TABLE (LG: 7 COLS) --}}
-            <div class="lg:col-span-7">
+            <div class="md:col-span-7">
                 <div class="crm-card p-0 overflow-hidden">
                     {{-- Header --}}
                     <div class="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
@@ -118,21 +118,21 @@
                         </a>
                     </div>
 
-                    {{-- Desktop & Tablet Table --}}
-                    <div class="hidden sm:block overflow-x-auto">
-                        <table class="w-full text-sm text-left border-collapse min-w-[480px]">
+                    {{-- Table (always visible, scroll on small screens) --}}
+                    <div class="block overflow-x-auto">
+                        <table class="w-full text-sm text-left border-collapse">
                             <thead>
                                 <tr class="bg-gray-50/80 border-b border-gray-100">
-                                    <th class="px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 w-[30%]">Pengiriman</th>
-                                    <th class="px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 w-[28%]">Pelanggan</th>
-                                    <th class="px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 w-[28%]">Rute</th>
-                                    <th class="px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 w-[14%]">Status</th>
+                                    <th class="px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 whitespace-nowrap">Pengiriman</th>
+                                    <th class="px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Pelanggan</th>
+                                    <th class="px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Rute</th>
+                                    <th class="px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 text-right whitespace-nowrap">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50">
                                 @forelse ($recentShipments as $shipment)
                                     <tr class="hover:bg-gray-50/80 transition-colors">
-                                        <td class="px-3.5 py-2.5">
+                                        <td class="px-3.5 py-2.5 whitespace-nowrap">
                                             <a href="{{ route('admin.shipments.show', $shipment) }}"
                                                class="text-xs font-bold text-gray-900 hover:text-primary transition-colors block truncate font-mono"
                                                title="{{ $shipment->display_code }}">
@@ -140,24 +140,24 @@
                                             </a>
                                         </td>
                                         <td class="px-3.5 py-2.5 min-w-0">
-                                            <span class="text-xs text-gray-700 font-medium block truncate"
+                                            <span class="text-xs text-gray-700 font-medium block truncate max-w-[130px] lg:max-w-[160px]"
                                                   title="{{ $shipment->customer->company_name ?? '-' }}">
                                                 {{ $shipment->customer->company_name ?? '-' }}
                                             </span>
                                         </td>
                                         <td class="px-3.5 py-2.5 min-w-0">
-                                            <span class="text-xs text-gray-500 block truncate"
+                                            <span class="text-xs text-gray-500 block truncate max-w-[120px] lg:max-w-[150px]"
                                                   title="{{ $shipment->origin }} → {{ $shipment->destination }}">
                                                 {{ $shipment->origin }} &rarr; {{ $shipment->destination }}
                                             </span>
                                         </td>
-                                        <td class="px-3.5 py-2.5 whitespace-nowrap">
+                                        <td class="px-3.5 py-2.5 whitespace-nowrap text-right">
                                             <x-badge :status="$shipment->status" />
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-4 py-8 text-center">
+                                        <td colspan="4" class="px-4 py-6 text-center">
                                             <p class="text-xs text-gray-400 font-medium">Belum ada data pengiriman.</p>
                                             <a href="{{ route('admin.shipments.create') }}" class="btn-primary text-xs mt-2 inline-flex">
                                                 + Buat Pengiriman
@@ -169,7 +169,7 @@
                         </table>
                     </div>
 
-                    {{-- Mobile View (Compact List Card) --}}
+                    {{-- Mobile-only View (Compact List Card) --}}
                     <div class="block sm:hidden divide-y divide-gray-100">
                         @forelse ($recentShipments as $shipment)
                             <a href="{{ route('admin.shipments.show', $shipment) }}" class="p-3 block hover:bg-gray-50 transition-colors">
@@ -194,7 +194,7 @@
             </div>
 
             {{-- LIVE TRACKING TIMELINE (LG: 5 COLS) --}}
-            <div class="lg:col-span-5">
+            <div class="md:col-span-5">
                 <div class="crm-card">
                     {{-- Header --}}
                     <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">

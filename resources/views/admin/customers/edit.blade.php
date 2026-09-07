@@ -21,7 +21,7 @@
                     <p class="text-xs text-gray-500">Perbarui data utama dan alamat perusahaan.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <div>
                         <label for="company_name" class="crm-label">Nama Perusahaan <span class="text-primary">*</span></label>
                         <input id="company_name" type="text" name="company_name" value="{{ old('company_name', $customer->company_name) }}" required
@@ -36,7 +36,7 @@
                                maxlength="10"
                                class="crm-input uppercase font-mono @error('shipment_code_prefix') border-primary @enderror">
                         <p class="text-[11px] text-gray-500 mt-1">
-                            Awalan kode khusus (misal: <strong>ADJ</strong> untuk PT Adijaya -> menghasilkan <strong>ADJ-19001</strong>).
+                            Awalan kode khusus (misal: <strong>ADJ</strong> untuk PT Adijaya &rarr; menghasilkan <strong>ADJ-19001</strong>).
                         </p>
                         @error('shipment_code_prefix') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
@@ -49,7 +49,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="phone" class="crm-label">Telepon / WhatsApp <span class="text-primary">*</span></label>
                         <input id="phone" type="text" name="phone" value="{{ old('phone', $customer->phone) }}" required
@@ -72,7 +72,7 @@
                     @error('address') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <label for="city" class="crm-label">Kota <span class="text-primary">*</span></label>
                         <input id="city" type="text" name="city" value="{{ old('city', $customer->city) }}" required
@@ -103,11 +103,11 @@
             </div>
 
             <!-- Actions Footer -->
-            <div class="mt-6 flex items-center justify-end gap-3">
-                <a href="{{ route('admin.customers.index') }}" class="btn-secondary">
+            <div class="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
+                <a href="{{ route('admin.customers.index') }}" class="btn-secondary w-full sm:w-auto text-center">
                     Batal
                 </a>
-                <button type="submit" class="btn-primary">
+                <button type="submit" class="btn-primary w-full sm:w-auto text-center">
                     Simpan Perubahan
                 </button>
             </div>

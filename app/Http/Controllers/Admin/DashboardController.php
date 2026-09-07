@@ -30,8 +30,13 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        // 3. Live Tracking Updates
+        // 3. Live Tracking Updates (deduplicated: 1 update terbaru per shipment)
+        $latestTrackingIds = TrackingUpdate::selectRaw('MAX(id) as id')
+            ->groupBy('shipment_id')
+            ->pluck('id');
+
         $trackingUpdates = TrackingUpdate::with(['shipment.customer'])
+            ->whereIn('id', $latestTrackingIds)
             ->latest('tracked_at')
             ->take(5)
             ->get();

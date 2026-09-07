@@ -33,7 +33,7 @@
         {{-- =============================================
              2. KPI CARDS GRID — 5 compact cards
              ============================================= --}}
-        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {{-- Card 1: Total Pengiriman --}}
             <a href="{{ route('customer.shipments.index') }}" class="kpi-card group block">
                 <p class="text-xs font-medium text-gray-500">Total Pengiriman</p>
@@ -83,10 +83,10 @@
         {{-- =============================================
              3. LIVE TRACKING + GRAFIK RIWAYAT PENGIRIMAN
              ============================================= --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
             <!-- Live Tracking Card -->
-            <div class="crm-card lg:col-span-1 flex flex-col justify-between">
+            <div class="crm-card md:col-span-1 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
                         <h3 class="font-poppins font-bold text-base text-gray-900 flex items-center gap-2">
@@ -151,7 +151,7 @@
             </div>
 
             <!-- Grafik Riwayat Pengiriman 6 Bulan -->
-            <div class="crm-card lg:col-span-2 flex flex-col justify-between">
+            <div class="crm-card md:col-span-2 flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-start border-b border-gray-100 pb-3 mb-4">
                         <div>

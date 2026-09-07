@@ -55,7 +55,7 @@
 
                 <div x-show="selectedOrder" x-transition class="bg-blue-50 border border-blue-100 rounded-card p-4">
                     <template x-if="selectedOrder">
-                        <div class="grid grid-cols-3 gap-4 text-sm">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                             <div>
                                 <p class="text-xs text-gray-400 font-medium">Customer</p>
                                 <p class="font-semibold text-gray-800 mt-0.5" x-text="selectedOrder.customer_name"></p>

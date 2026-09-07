@@ -7,7 +7,7 @@
     $isAdmin = $user && $user->isAdmin();
 @endphp
 
-<!-- Mobile Backdrop Overlay -->
+<!-- Mobile Backdrop Overlay — only shown below md (mobile drawer mode) -->
 <div x-cloak
      x-show="sidebarOpen" 
      x-transition:enter="transition-opacity ease-linear duration-150"
@@ -17,10 +17,10 @@
      x-transition:leave-start="opacity-100"
      x-transition:leave-end="opacity-0"
      @click="sidebarOpen = false" 
-     class="fixed inset-0 z-40 bg-gray-900/40 backdrop-blur-xs lg:hidden"></div>
+     class="fixed inset-0 z-40 bg-gray-900/40 backdrop-blur-xs md:hidden"></div>
 
-<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" 
-       class="fixed lg:sticky top-0 inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200/80 transform transition-transform duration-200 ease-in-out flex flex-col h-screen shadow-xs shrink-0">
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'" 
+       class="fixed md:static top-0 inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200/80 transform transition-transform duration-200 ease-in-out flex flex-col h-screen shadow-xs shrink-0">
     
     <!-- Logo & Header -->
     <div class="h-16 flex items-center justify-between px-6 border-b border-gray-100 shrink-0">
@@ -30,7 +30,7 @@
             </div>
             <span class="font-poppins font-bold text-lg text-gray-900 tracking-tight">LOGISTIK<span class="text-primary">CRM</span></span>
         </a>
-        <button @click="sidebarOpen = false" aria-label="Tutup menu" class="lg:hidden p-1.5 rounded-btn text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none">
+        <button @click="sidebarOpen = false" aria-label="Tutup menu" class="md:hidden p-1.5 rounded-btn text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
     </div>
