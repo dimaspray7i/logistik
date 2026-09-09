@@ -10,15 +10,9 @@
                 <div>
                     <div class="flex items-center gap-2 flex-wrap">
                         <h1 class="text-xl font-bold text-gray-900 tracking-tight leading-snug font-mono">{{ $shipment->display_code }}</h1>
-                        @if ($shipment->isExternal())
-                            <span class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                                Ekspedisi: {{ $shipment->carrier_label }}
-                            </span>
-                        @else
-                            <span class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                                Armada Perusahaan
-                            </span>
-                        @endif
+                        <span class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            Ekspedisi: {{ $shipment->carrier_label }}
+                        </span>
                     </div>
                     <p class="text-xs text-gray-400 mt-0.5">{{ $shipment->origin }} &rarr; {{ $shipment->destination }}</p>
                 </div>
@@ -61,25 +55,18 @@
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-gray-100 pt-4">
-                @if ($shipment->isExternal())
-                    <div class="p-3 bg-blue-50/70 rounded-btn border border-blue-100">
-                        <p class="text-[11px] text-blue-700 font-medium">Jasa Pengiriman</p>
-                        <p class="text-sm font-bold text-blue-900 mt-0.5">{{ $shipment->carrier_label }}</p>
-                    </div>
-                    <div class="p-3 bg-blue-50/70 rounded-btn border border-blue-100">
-                        <p class="text-[11px] text-blue-700 font-medium">Nomor Resi</p>
-                        <p class="text-sm font-bold text-blue-950 mt-0.5 font-mono">{{ $shipment->tracking_number }}</p>
-                    </div>
-                @else
-                    <div class="p-3 bg-gray-50/80 rounded-btn border border-gray-100">
-                        <p class="text-[11px] text-gray-500 font-medium">Jenis Pengiriman</p>
-                        <p class="text-sm font-bold text-gray-900 mt-0.5">Armada Perusahaan</p>
-                    </div>
-                    <div class="p-3 bg-gray-50/80 rounded-btn border border-gray-100">
-                        <p class="text-[11px] text-gray-500 font-medium">Kode Internal</p>
-                        <p class="text-sm font-bold text-gray-900 mt-0.5 font-mono">{{ $shipment->shipment_number }}</p>
-                    </div>
-                @endif
+                <div class="p-3 bg-blue-50/70 rounded-btn border border-blue-100">
+                    <p class="text-[11px] text-blue-700 font-medium">Jasa Pengiriman</p>
+                    <p class="text-sm font-bold text-blue-900 mt-0.5">{{ $shipment->carrier_label }}</p>
+                </div>
+                <div class="p-3 bg-blue-50/70 rounded-btn border border-blue-100">
+                    <p class="text-[11px] text-blue-700 font-medium">Nomor Resi</p>
+                    <p class="text-sm font-bold text-blue-950 mt-0.5 font-mono">{{ $shipment->tracking_number ?: '-' }}</p>
+                </div>
+                <div class="p-3 bg-gray-50/80 rounded-btn border border-gray-100">
+                    <p class="text-[11px] text-gray-500 font-medium">Nomor Pengiriman (Ref)</p>
+                    <p class="text-sm font-bold text-gray-900 mt-0.5 font-mono">{{ $shipment->shipment_number }}</p>
+                </div>
                 <div class="p-3 bg-gray-50/80 rounded-btn border border-gray-100">
                     <p class="text-[11px] text-gray-500 font-medium">Total Berat</p>
                     <p class="text-sm font-bold text-gray-900 mt-0.5">{{ number_format($shipment->total_weight, 0) }} Kg</p>
@@ -96,14 +83,7 @@
                     <p class="text-[11px] text-gray-500 font-medium">Tiba Aktual</p>
                     <p class="text-sm font-bold text-gray-900 mt-0.5">{{ $shipment->actual_arrival ? $shipment->actual_arrival->format('d M Y') : 'Belum tiba' }}</p>
                 </div>
-                <div class="p-3 bg-gray-50/80 rounded-btn border border-gray-100">
-                    <p class="text-[11px] text-gray-500 font-medium">Kendaraan</p>
-                    <p class="text-sm font-bold text-gray-900 mt-0.5">{{ $shipment->vehicle ? $shipment->vehicle->plate_number : '-' }}</p>
-                </div>
-                <div class="p-3 bg-gray-50/80 rounded-btn border border-gray-100">
-                    <p class="text-[11px] text-gray-500 font-medium">Supir</p>
-                    <p class="text-sm font-bold text-gray-900 mt-0.5">{{ $shipment->driver->name ?? '-' }}</p>
-                </div>
+
                 @if($shipment->notes)
                     <div class="col-span-2 sm:col-span-3 p-3 bg-gray-50/80 rounded-btn border border-gray-100">
                         <p class="text-[11px] text-gray-500 font-medium">Catatan</p>

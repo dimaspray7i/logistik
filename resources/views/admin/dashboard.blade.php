@@ -37,10 +37,9 @@
 
             {{-- Card 1: Total Pelanggan --}}
             <a href="{{ route('admin.customers.index') }}" class="kpi-card group block">
-                <p class="text-xs font-medium text-gray-500">Total Pelanggan</p>
+                <p class="text-xs font-medium text-gray-500">Total Customer</p>
                 <p class="text-2xl font-bold text-gray-900 mt-1 mb-0.5">{{ number_format($stats['total_customers']) }}</p>
                 <p class="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                    <span>+10.2%</span>
                     <span class="text-gray-400 font-normal truncate">terdaftar</span>
                 </p>
             </a>
@@ -49,9 +48,9 @@
             <a href="{{ route('admin.orders.index') }}" class="kpi-card group block">
                 <p class="text-xs font-medium text-gray-500">Total Pesanan</p>
                 <p class="text-2xl font-bold text-amber-500 mt-1 mb-0.5">{{ number_format($stats['total_orders']) }}</p>
-                <p class="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                    <span>+1.8%</span>
-                    <span class="text-gray-400 font-normal truncate">tercatat</span>
+                <p class="text-[11px] font-semibold text-amber-600 flex items-center gap-1">
+                    <span>{{ number_format($stats['pending_orders']) }}</span>
+                    <span class="text-gray-400 font-normal truncate">menunggu diproses</span>
                 </p>
             </a>
 
@@ -60,38 +59,34 @@
                 <p class="text-xs font-medium text-gray-500">Total Pengiriman</p>
                 <p class="text-2xl font-bold text-primary mt-1 mb-0.5">{{ number_format($stats['total_shipments']) }}</p>
                 <p class="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                    <span>+12%</span>
-                    <span class="text-gray-400 font-normal truncate">bulan ini</span>
+                    <span class="text-gray-400 font-normal truncate">semua periode</span>
                 </p>
             </a>
 
-            {{-- Card 4: In Transit --}}
-            <a href="{{ route('admin.shipments.index', ['status' => 'IN_TRANSIT']) }}" class="kpi-card group block">
-                <p class="text-xs font-medium text-gray-500">In Transit</p>
-                <p class="text-2xl font-bold text-info mt-1 mb-0.5">{{ number_format($stats['in_transit']) }}</p>
-                <p class="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                    <span>+12%</span>
+            {{-- Card 4: Pengiriman Aktif --}}
+            <a href="{{ route('admin.shipments.index') }}" class="kpi-card group block">
+                <p class="text-xs font-medium text-gray-500">Pengiriman Aktif</p>
+                <p class="text-2xl font-bold text-info mt-1 mb-0.5">{{ number_format($stats['active_shipments']) }}</p>
+                <p class="text-[11px] font-semibold text-info flex items-center gap-1">
                     <span class="text-gray-400 font-normal truncate">berjalan</span>
                 </p>
             </a>
 
-            {{-- Card 5: Terkirim --}}
-            <a href="{{ route('admin.shipments.index', ['status' => 'DELIVERED']) }}" class="kpi-card group block">
-                <p class="text-xs font-medium text-gray-500">Terkirim</p>
-                <p class="text-2xl font-bold text-success mt-1 mb-0.5">{{ number_format($stats['delivered']) }}</p>
-                <p class="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                    <span>+12%</span>
-                    <span class="text-gray-400 font-normal truncate">sukses</span>
+            {{-- Card 5: Dalam Pengiriman --}}
+            <a href="{{ route('admin.shipments.index', ['status' => 'IN_TRANSIT']) }}" class="kpi-card group block">
+                <p class="text-xs font-medium text-gray-500">Dalam Pengiriman</p>
+                <p class="text-2xl font-bold text-blue-600 mt-1 mb-0.5">{{ number_format($stats['in_transit']) }}</p>
+                <p class="text-[11px] font-semibold text-blue-600 flex items-center gap-1">
+                    <span class="text-gray-400 font-normal truncate">in transit</span>
                 </p>
             </a>
 
-            {{-- Card 6: Tertunda --}}
-            <a href="{{ route('admin.shipments.index', ['status' => 'DELAYED']) }}" class="kpi-card group block">
-                <p class="text-xs font-medium text-gray-500">Tertunda</p>
-                <p class="text-2xl font-bold text-primary mt-1 mb-0.5">{{ number_format($stats['delayed']) }}</p>
-                <p class="text-[11px] font-semibold text-red-500 flex items-center gap-1">
-                    <span>+15.3%</span>
-                    <span class="text-gray-400 font-normal truncate">perlu cek</span>
+            {{-- Card 6: Selesai / Terkirim --}}
+            <a href="{{ route('admin.shipments.index', ['status' => 'DELIVERED']) }}" class="kpi-card group block">
+                <p class="text-xs font-medium text-gray-500">Selesai</p>
+                <p class="text-2xl font-bold text-emerald-600 mt-1 mb-0.5">{{ number_format($stats['delivered']) }}</p>
+                <p class="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    <span class="text-gray-400 font-normal truncate">terkirim</span>
                 </p>
             </a>
 

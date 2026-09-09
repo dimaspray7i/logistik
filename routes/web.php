@@ -2,11 +2,21 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicTrackingController;
 use Illuminate\Support\Facades\Route;
 
 // 1. Route Welcome (Halaman Depan)
 Route::get('/', function () {
     return view('welcome');
+});
+
+// 2. Public Tracking — no auth required
+Route::middleware(['throttle:10,1'])->group(function () {
+    Route::get('/tracking', [PublicTrackingController::class, 'index'])->name('tracking.index');
+    Route::post('/tracking', [PublicTrackingController::class, 'search'])->name('tracking.search');
+    Route::get('/tracking/{trackingNumber}', [PublicTrackingController::class, 'show'])
+         ->name('tracking.show')
+         ->where('trackingNumber', '[A-Za-z0-9\-\_]+');
 });
 
 // 2. Route Auth Breeze (Login, Register, dll)
@@ -46,15 +56,17 @@ Route::middleware(['auth', 'role.admin'])->prefix('admin')->name('admin.')->grou
         Route::resource('contacts', \App\Http\Controllers\Admin\ContactController::class);
         Route::resource('products', \App\Http\Controllers\Admin\ProductController::class)->except(['show']);
         Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
-        Route::resource('vehicles', \App\Http\Controllers\Admin\VehicleController::class)->except(['show']);
-        Route::resource('drivers', \App\Http\Controllers\Admin\DriverController::class)->except(['show']);
         Route::resource('shipments', \App\Http\Controllers\Admin\ShipmentController::class);
+        Route::resource('expedition-providers', \App\Http\Controllers\Admin\ExpeditionProviderController::class)->except(['show']);
         Route::get('/shipments/{shipment}/route', [\App\Http\Controllers\Admin\RouteController::class, 'edit'])->name('shipments.route.edit');
         Route::post('/shipments/{shipment}/route', [\App\Http\Controllers\Admin\RouteController::class, 'store'])->name('shipments.route.store');
         Route::post('/shipments/{shipment}/tracking', [\App\Http\Controllers\Admin\TrackingController::class, 'store'])->name('shipments.tracking.store');
         Route::delete('/shipments/{shipment}/tracking/{trackingUpdate}', [\App\Http\Controllers\Admin\TrackingController::class, 'destroy'])->name('shipments.tracking.destroy');
         Route::post('/shipments/{shipment}/documents', [\App\Http\Controllers\Admin\DocumentController::class, 'store'])->name('shipments.documents.store');
         Route::delete('/shipments/{shipment}/documents/{document}', [\App\Http\Controllers\Admin\DocumentController::class, 'destroy'])->name('shipments.documents.destroy');
+        // Vehicle & Driver routes disabled — UI removed, tables kept for data safety
+        // Route::resource('vehicles', \App\Http\Controllers\Admin\VehicleController::class)->except(['show']);
+        // Route::resource('drivers', \App\Http\Controllers\Admin\DriverController::class)->except(['show']);
 });
 
 // ==========================================

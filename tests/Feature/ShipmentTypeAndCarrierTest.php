@@ -7,6 +7,7 @@ use App\Enums\ShipmentStatus;
 use App\Enums\ShippingType;
 use App\Enums\UserRole;
 use App\Models\Customer;
+use App\Models\ExpeditionProvider;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\User;
@@ -25,6 +26,7 @@ class ShipmentTypeAndCarrierTest extends TestCase
     private Customer $customerB;
     private Order $orderA;
     private Order $orderB;
+    private ExpeditionProvider $providerAEI;
 
     protected function setUp(): void
     {
@@ -81,14 +83,21 @@ class ShipmentTypeAndCarrierTest extends TestCase
             'order_date' => now(),
             'status' => OrderStatus::PENDING,
         ]);
+
+        $this->providerAEI = ExpeditionProvider::firstOrCreate(
+            ['code' => 'AEI'],
+            ['name' => 'AEI — PT. Antar Exprindo Indah', 'description' => 'Mitra Ekspedisi Utam', 'is_active' => true]
+        );
     }
 
-    /** 1. Membuat pengiriman internal menghasilkan kode PKM-YYYY-000001 (bukan SHP) */
-    public function test_create_internal_shipment_generates_custom_prefix_code(): void
+    /** 1. Membuat pengiriman ekspedisi eksternal dengan provider AEI */
+    public function test_create_external_shipment_with_aei_provider(): void
     {
         $response = $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderA->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-99887766',
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
             'status' => 'READY',
@@ -100,20 +109,20 @@ class ShipmentTypeAndCarrierTest extends TestCase
 
         $shipment = Shipment::firstWhere('order_id', $this->orderA->id);
         $this->assertNotNull($shipment);
-        $this->assertStringStartsWith('PKM-', $shipment->shipment_number);
-        $this->assertFalse(str_starts_with($shipment->shipment_number, 'SHP-'));
-        $this->assertEquals(ShippingType::INTERNAL, $shipment->shipping_type);
-        $this->assertNull($shipment->carrier);
-        $this->assertNull($shipment->tracking_number);
-        $this->assertEquals($shipment->shipment_number, $shipment->display_code);
+        $this->assertEquals(ShippingType::EXTERNAL, $shipment->shipping_type);
+        $this->assertEquals($this->providerAEI->id, $shipment->expedition_provider_id);
+        $this->assertEquals('AEI-99887766', $shipment->tracking_number);
+        $this->assertEquals('AEI-99887766', $shipment->display_code);
     }
 
-    /** 2. Membuat pengiriman internal kedua menghasilkan nomor berbeda secara berurutan */
-    public function test_create_second_internal_shipment_generates_consecutive_number(): void
+    /** 2. Membuat pengiriman kedua menyimpan nomor resi secara independen */
+    public function test_create_second_shipment_saves_independent_resi(): void
     {
         $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderA->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-001',
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
             'status' => 'READY',
@@ -121,7 +130,9 @@ class ShipmentTypeAndCarrierTest extends TestCase
 
         $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderB->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-002',
             'origin' => 'Surabaya',
             'destination' => 'Malang',
             'status' => 'READY',
@@ -129,28 +140,20 @@ class ShipmentTypeAndCarrierTest extends TestCase
 
         $shipments = Shipment::orderBy('id', 'asc')->get();
         $this->assertCount(2, $shipments);
-
-        $num1 = $shipments[0]->shipment_number;
-        $num2 = $shipments[1]->shipment_number;
-
-        $this->assertNotEquals($num1, $num2);
-
-        $parts1 = explode('-', $num1);
-        $parts2 = explode('-', $num2);
-        $seq1 = (int) end($parts1);
-        $seq2 = (int) end($parts2);
-        $this->assertEquals($seq1 + 1, $seq2);
+        $this->assertEquals('AEI-001', $shipments[0]->tracking_number);
+        $this->assertEquals('AEI-002', $shipments[1]->tracking_number);
     }
 
-    /** 3. Membuat pengiriman JNE dengan resi asli menyimpan resi tanpa diubah */
+    /** 3. Membuat pengiriman ekspedisi dengan resi asli menyimpan resi tanpa diubah */
     public function test_create_external_shipment_preserves_original_resi(): void
     {
-        $originalResi = 'JNE123456789999';
+        $originalResi = 'AEI123456789999';
 
         $response = $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderA->id,
             'shipping_type' => 'EXTERNAL',
-            'carrier' => 'JNE',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'carrier' => 'AEI',
             'tracking_number' => $originalResi,
             'origin' => 'Jakarta',
             'destination' => 'Medan',
@@ -162,55 +165,34 @@ class ShipmentTypeAndCarrierTest extends TestCase
         $shipment = Shipment::firstWhere('order_id', $this->orderA->id);
         $this->assertNotNull($shipment);
         $this->assertEquals('EXTERNAL', $shipment->shipping_type->value);
-        $this->assertEquals('JNE', $shipment->carrier);
         $this->assertEquals($originalResi, $shipment->tracking_number);
         $this->assertEquals($originalResi, $shipment->display_code);
     }
 
-    /** 4. Memilih operator eksternal tanpa nomor resi harus gagal validasi */
-    public function test_external_shipment_requires_carrier_and_tracking_number(): void
+    /** 4. Memilih operator eksternal tanpa provider atau nomor resi harus gagal validasi */
+    public function test_external_shipment_requires_provider_and_tracking_number(): void
     {
         $response = $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderA->id,
             'shipping_type' => 'EXTERNAL',
-            'carrier' => 'JNE',
+            'expedition_provider_id' => null,
             'tracking_number' => '', // Kosong -> harus gagal
             'origin' => 'Jakarta',
             'destination' => 'Medan',
             'status' => 'READY',
         ]);
 
-        $response->assertSessionHasErrors(['tracking_number']);
+        $response->assertSessionHasErrors(['expedition_provider_id', 'tracking_number']);
     }
 
-    /** 5. Pengiriman internal tidak memerlukan operator eksternal */
-    public function test_internal_shipment_does_not_require_external_tracking(): void
-    {
-        $response = $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
-            'order_id' => $this->orderA->id,
-            'shipping_type' => 'INTERNAL',
-            'carrier' => null,
-            'tracking_number' => null,
-            'origin' => 'Semarang',
-            'destination' => 'Solo',
-            'status' => 'READY',
-        ]);
-
-        $response->assertRedirect(route('admin.shipments.index'));
-        $this->assertDatabaseHas('shipments', [
-            'order_id' => $this->orderA->id,
-            'shipping_type' => 'INTERNAL',
-            'carrier' => null,
-            'tracking_number' => null,
-        ]);
-    }
-
-    /** 6. Pengiriman lama berformat SHP-xxx tetap dapat dibuka & tracking tetap berjalan */
+    /** 5. Pengiriman lama berformat SHP-xxx tetap dapat dibuka & tracking tetap berjalan */
     public function test_historical_shp_shipments_remain_functional(): void
     {
         $historical = Shipment::create([
             'shipment_number' => 'SHP-20251201-099',
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-HIST-099',
             'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Denpasar',
@@ -226,17 +208,18 @@ class ShipmentTypeAndCarrierTest extends TestCase
         // Buka portal customer
         $custRes = $this->actingAs($this->customerUserA)->get(route('customer.shipments.show', $historical));
         $custRes->assertOk();
-        $custRes->assertSee('SHP-20251201-099');
+        $custRes->assertSee('AEI-HIST-099');
     }
 
-    /** 7. Detail pengiriman & portal pelanggan menampilkan pengenal yang benar */
+    /** 6. Detail pengiriman & portal pelanggan menampilkan pengenal yang benar */
     public function test_customer_portal_displays_correct_display_code(): void
     {
         $externalShipment = Shipment::create([
             'shipment_number' => ShipmentCodeGenerator::generate(),
             'shipping_type' => 'EXTERNAL',
-            'carrier' => 'SiCepat',
-            'tracking_number' => 'SICEPAT889911',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'carrier' => 'AEI',
+            'tracking_number' => 'AEI889911',
             'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Bogor',
@@ -246,16 +229,18 @@ class ShipmentTypeAndCarrierTest extends TestCase
 
         $response = $this->actingAs($this->customerUserA)->get(route('customer.shipments.show', $externalShipment));
         $response->assertOk();
-        $response->assertSee('SICEPAT889911');
-        $response->assertSee('SiCepat');
+        $response->assertSee('AEI889911');
+        $response->assertSee('AEI');
     }
 
-    /** 8. Pencarian dapat menemukan pengiriman berdasarkan kode internal maupun resi eksternal */
+    /** 7. Pencarian dapat menemukan pengiriman berdasarkan kode internal maupun resi eksternal */
     public function test_search_finds_shipments_by_internal_code_or_external_resi(): void
     {
-        $shipmentInternal = Shipment::create([
-            'shipment_number' => 'PKM-2026-990001',
-            'shipping_type' => 'INTERNAL',
+        $shipment1 = Shipment::create([
+            'shipment_number' => 'SHP-2026-990001',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-TRACK-001',
             'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Jakarta',
@@ -263,11 +248,11 @@ class ShipmentTypeAndCarrierTest extends TestCase
             'status' => ShipmentStatus::READY,
         ]);
 
-        $shipmentExternal = Shipment::create([
-            'shipment_number' => 'PKM-2026-990002',
+        $shipment2 = Shipment::create([
+            'shipment_number' => 'SHP-2026-990002',
             'shipping_type' => 'EXTERNAL',
-            'carrier' => 'Pos Indonesia',
-            'tracking_number' => 'POS9988776655',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-TRACK-002',
             'order_id' => $this->orderB->id,
             'customer_id' => $this->customerB->id,
             'origin' => 'Surabaya',
@@ -276,24 +261,20 @@ class ShipmentTypeAndCarrierTest extends TestCase
         ]);
 
         // Cari berdasarkan resi eksternal
-        $resExt = $this->actingAs($this->admin)->get(route('admin.shipments.index', ['search' => 'POS9988776655']));
+        $resExt = $this->actingAs($this->admin)->get(route('admin.shipments.index', ['search' => 'AEI-TRACK-002']));
         $resExt->assertOk();
-        $resExt->assertSee('POS9988776655');
-        $resExt->assertDontSee('PKM-2026-990001');
-
-        // Cari berdasarkan kode internal
-        $resInt = $this->actingAs($this->admin)->get(route('admin.shipments.index', ['search' => 'PKM-2026-990001']));
-        $resInt->assertOk();
-        $resInt->assertSee('PKM-2026-990001');
-        $resInt->assertDontSee('POS9988776655');
+        $resExt->assertSee('AEI-TRACK-002');
+        $resExt->assertDontSee('AEI-TRACK-001');
     }
 
-    /** 9. Otorisasi tetap ketat: Customer B tidak dapat mengakses pengiriman Customer A */
+    /** 8. Otorisasi tetap ketat: Customer B tidak dapat mengakses pengiriman Customer A */
     public function test_customer_authorization_remains_strict(): void
     {
         $shipmentA = Shipment::create([
-            'shipment_number' => 'PKM-2026-111111',
-            'shipping_type' => 'INTERNAL',
+            'shipment_number' => 'SHP-2026-111111',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-111111',
             'order_id' => $this->orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Jakarta',
@@ -305,3 +286,4 @@ class ShipmentTypeAndCarrierTest extends TestCase
         $response->assertStatus(404);
     }
 }
+

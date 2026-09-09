@@ -98,10 +98,9 @@
                 <table class="crm-table">
                     <thead>
                         <tr>
-                        <tr>
                             <th>No. / Resi Pengiriman</th>
                             <th>Rute</th>
-                            <th>Armada / Ekspedisi</th>
+                            <th>Penyedia Ekspedisi</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -114,8 +113,8 @@
                                     </a>
                                 </td>
                                 <td class="text-xs text-gray-600">{{ $shipment->origin }} &rarr; {{ $shipment->destination }}</td>
-                                <td class="text-xs text-gray-600 font-medium">
-                                    {{ $shipment->isExternal() ? 'Ekspedisi ' . $shipment->carrier_label : ($shipment->vehicle->plate_number ?? 'Armada Internal') }}
+                                <td class="text-xs text-blue-700 font-bold">
+                                    {{ $shipment->carrier_label }}
                                 </td>
                                 <td>
                                     <x-badge :status="$shipment->status" />
