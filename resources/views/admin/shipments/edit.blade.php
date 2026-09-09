@@ -41,46 +41,58 @@
                 </div>
             </div>
 
-            {{-- ===== SECTION 2: Metode & Identitas Pengiriman ===== --}}
+            {{-- ===== SECTION 2: Jenis & Identitas Pengiriman ===== --}}
             <div class="crm-card space-y-4 mb-6">
                 <div class="border-b border-gray-100 pb-3">
                     <h2 class="font-poppins font-bold text-base text-gray-900">Metode & Identitas Pengiriman</h2>
-                    <p class="text-xs text-gray-500 mt-0.5">Pengiriman menggunakan Jasa Ekspedisi Eksternal (mitra ekspedisi).</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="crm-label">Jenis Pengiriman <span class="text-primary">*</span></label>
-                        <input type="hidden" name="shipping_type" value="EXTERNAL">
-                        <input type="text" value="Ekspedisi Eksternal" readonly class="crm-input bg-gray-100 text-gray-700 cursor-not-allowed font-semibold">
+                        <div class="grid grid-cols-2 gap-3 mt-1">
+                            <label class="flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition"
+                                   :class="shippingType === 'INTERNAL' ? 'border-primary bg-primary/5 text-gray-900 font-semibold' : 'border-gray-200 text-gray-600'">
+                                <input type="radio" name="shipping_type" value="INTERNAL" x-model="shippingType" class="text-primary focus:ring-primary">
+                                <span class="text-xs md:text-sm">Armada Perusahaan (Internal)</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition"
+                                   :class="shippingType === 'EXTERNAL' ? 'border-primary bg-primary/5 text-gray-900 font-semibold' : 'border-gray-200 text-gray-600'">
+                                <input type="radio" name="shipping_type" value="EXTERNAL" x-model="shippingType" class="text-primary focus:ring-primary">
+                                <span class="text-xs md:text-sm">Ekspedisi Eksternal</span>
+                            </label>
+                        </div>
+                        @error('shipping_type') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label for="expedition_provider_id" class="crm-label">Penyedia Ekspedisi <span class="text-primary">*</span></label>
-                        <select id="expedition_provider_id" name="expedition_provider_id" required
-                                class="crm-input @error('expedition_provider_id') border-primary @enderror">
-                            <option value="">-- Pilih Ekspedisi --</option>
-                            @foreach ($expeditionProviders as $p)
-                                <option value="{{ $p->id }}" @selected(old('expedition_provider_id', $shipment->expedition_provider_id) == $p->id)>
-                                    {{ $p->name }} ({{ $p->code }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('expedition_provider_id') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
+                        <div x-show="shippingType === 'INTERNAL'" x-transition>
+                            <label class="crm-label">Kode Pengiriman Internal</label>
+                            <input type="text" value="{{ $shipment->shipment_number }}" readonly
+                                   class="crm-input bg-gray-100 text-gray-700 cursor-not-allowed font-mono font-semibold">
+                        </div>
 
-                    <div>
-                        <label for="tracking_number" class="crm-label">Nomor Resi <span class="text-primary">*</span></label>
-                        <input id="tracking_number" type="text" name="tracking_number" value="{{ old('tracking_number', $shipment->tracking_number) }}"
-                               placeholder="Contoh: AEI123456789" required
-                               class="crm-input font-mono @error('tracking_number') border-primary @enderror">
-                        @error('tracking_number') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
+                        <div x-show="shippingType === 'EXTERNAL'" x-transition class="space-y-3">
+                            <div>
+                                <label for="carrier" class="crm-label">Jasa Pengiriman / Carrier <span class="text-primary">*</span></label>
+                                <select id="carrier" name="carrier" x-model="carrierSelect" :required="shippingType === 'EXTERNAL'"
+                                        class="crm-input @error('carrier') border-primary @enderror">
+                                    @foreach ($carriers as $c)
+                                        <option value="{{ $c }}">{{ $c }}</option>
+                                    @endforeach
+                                </select>
+                                @error('carrier') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
 
-                    <div>
-                        <label class="crm-label">Nomor Pengiriman (Referensi Sistem)</label>
-                        <input type="text" value="{{ $shipment->shipment_number }}" readonly
-                               class="crm-input bg-gray-100 text-gray-700 cursor-not-allowed font-mono font-semibold">
+                            <div>
+                                <label for="tracking_number" class="crm-label">Nomor Resi Original <span class="text-primary">*</span></label>
+                                <input id="tracking_number" type="text" name="tracking_number" value="{{ old('tracking_number', $shipment->tracking_number) }}"
+                                       placeholder="Contoh: JNE123456789"
+                                       :required="shippingType === 'EXTERNAL'"
+                                       class="crm-input font-mono @error('tracking_number') border-primary @enderror">
+                                @error('tracking_number') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -106,7 +118,30 @@
                     </div>
                 </div>
 
-
+                <div x-show="shippingType === 'INTERNAL'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/70 p-3 rounded-lg border border-gray-100">
+                    <div>
+                        <label for="vehicle_id" class="crm-label">Kendaraan Internal</label>
+                        <select id="vehicle_id" name="vehicle_id" class="crm-input">
+                            <option value="">-- Tanpa Kendaraan --</option>
+                            @foreach ($vehicles as $vehicle)
+                                <option value="{{ $vehicle->id }}" @selected(old('vehicle_id', $shipment->vehicle_id) == $vehicle->id)>
+                                    {{ $vehicle->plate_number }} ({{ $vehicle->vehicle_type }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="driver_id" class="crm-label">Supir / Driver Internal</label>
+                        <select id="driver_id" name="driver_id" class="crm-input">
+                            <option value="">-- Tanpa Supir --</option>
+                            @foreach ($drivers as $driver)
+                                <option value="{{ $driver->id }}" @selected(old('driver_id', $shipment->driver_id) == $driver->id)>
+                                    {{ $driver->name }} ({{ $driver->phone }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>

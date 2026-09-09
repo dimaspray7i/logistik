@@ -8,7 +8,6 @@ use App\Enums\UserRole;
 use App\Models\Customer;
 use App\Models\Document;
 use App\Models\Driver;
-use App\Models\ExpeditionProvider;
 use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\User;
@@ -253,50 +252,56 @@ class SecurityCriticalHardeningTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_create_and_update_expedition_provider(): void
+    public function test_admin_can_create_and_update_vehicle(): void
     {
-        $createResponse = $this->actingAs($this->admin)->post(route('admin.expedition-providers.store'), [
-            'name' => 'PT Antar Exprindo Indah',
-            'code' => 'AEI',
-            'description' => 'Penyedia Ekspedisi Utama',
-            'is_active' => 1,
+        $createResponse = $this->actingAs($this->admin)->post(route('admin.vehicles.store'), [
+            'plate_number' => 'B 1234 CD',
+            'vehicle_type' => 'Truck',
+            'brand' => 'Hino',
+            'capacity' => 5000,
+            'status' => 'AVAILABLE',
+            'notes' => 'Kondisi prima',
         ]);
 
-        $createResponse->assertRedirect(route('admin.expedition-providers.index'));
-        $this->assertDatabaseHas('expedition_providers', [
-            'code' => 'AEI',
-            'name' => 'PT Antar Exprindo Indah',
+        $createResponse->assertRedirect(route('admin.vehicles.index'));
+        $this->assertDatabaseHas('vehicles', [
+            'plate_number' => 'B 1234 CD',
+            'brand' => 'Hino',
         ]);
 
-        $provider = ExpeditionProvider::where('code', 'AEI')->first();
+        $vehicle = Vehicle::where('plate_number', 'B 1234 CD')->first();
 
-        $updateResponse = $this->actingAs($this->admin)->put(route('admin.expedition-providers.update', $provider), [
-            'name' => 'AEI — PT. Antar Exprindo Indah',
-            'code' => 'AEI',
-            'description' => 'Penyedia Ekspedisi Utama Perusahaan',
-            'is_active' => 1,
+        $updateResponse = $this->actingAs($this->admin)->put(route('admin.vehicles.update', $vehicle), [
+            'plate_number' => 'B 1234 CD',
+            'vehicle_type' => 'Truck Wingbox',
+            'brand' => 'Hino Dutro',
+            'capacity' => 6000,
+            'status' => 'IN_USE',
+            'notes' => 'Baru diservis',
         ]);
 
-        $updateResponse->assertRedirect(route('admin.expedition-providers.index'));
-        $this->assertDatabaseHas('expedition_providers', [
-            'id' => $provider->id,
-            'name' => 'AEI — PT. Antar Exprindo Indah',
+        $updateResponse->assertRedirect(route('admin.vehicles.index'));
+        $this->assertDatabaseHas('vehicles', [
+            'id' => $vehicle->id,
+            'vehicle_type' => 'Truck Wingbox',
+            'brand' => 'Hino Dutro',
+            'capacity' => 6000,
         ]);
     }
 
-    public function test_admin_can_create_additional_expedition_provider(): void
+    public function test_admin_can_create_driver(): void
     {
-        $response = $this->actingAs($this->admin)->post(route('admin.expedition-providers.store'), [
-            'name' => 'JNE Express',
-            'code' => 'JNE',
-            'description' => 'Ekspedisi JNE',
-            'is_active' => 1,
+        $response = $this->actingAs($this->admin)->post(route('admin.drivers.store'), [
+            'name' => 'Budi Santoso',
+            'phone' => '081299887766',
+            'license_number' => 'SIM-B2-998877',
+            'status' => 'ACTIVE',
         ]);
 
-        $response->assertRedirect(route('admin.expedition-providers.index'));
-        $this->assertDatabaseHas('expedition_providers', [
-            'code' => 'JNE',
-            'name' => 'JNE Express',
+        $response->assertRedirect(route('admin.drivers.index'));
+        $this->assertDatabaseHas('drivers', [
+            'name' => 'Budi Santoso',
+            'license_number' => 'SIM-B2-998877',
         ]);
     }
 

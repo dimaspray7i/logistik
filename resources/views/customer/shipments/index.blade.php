@@ -78,9 +78,15 @@
                                 <td class="font-semibold text-gray-900">
                                     <div class="flex items-center gap-1.5 flex-wrap">
                                         <span class="font-mono">{{ $shipment->display_code }}</span>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                                            {{ $shipment->carrier_label }}
-                                        </span>
+                                        @if ($shipment->isExternal())
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                                {{ $shipment->carrier_label }}
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                                Armada Perusahaan
+                                            </span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="text-gray-600 text-xs">
@@ -130,7 +136,7 @@
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex flex-col">
                             <span class="text-sm font-bold text-gray-900 font-mono">{{ $shipment->display_code }}</span>
-                            <span class="text-[10px] text-gray-500 font-medium">Ekspedisi: {{ $shipment->carrier_label }}</span>
+                            <span class="text-[10px] text-gray-500 font-medium">{{ $shipment->isExternal() ? 'Ekspedisi ' . $shipment->carrier_label : 'Armada Perusahaan' }}</span>
                         </div>
                         @php
                             $badgeClass = match($shipment->status->value) {

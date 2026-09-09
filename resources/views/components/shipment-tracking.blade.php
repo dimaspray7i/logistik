@@ -259,11 +259,17 @@
                         <div>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs uppercase tracking-wider font-semibold text-gray-400">
-                                    {{ $shipment->isExternal() ? 'Nomor Resi / Pelacakan' : 'Nomor Pengiriman' }}
+                                    {{ $shipment->isExternal() ? 'Nomor Resi / Pelacakan' : 'Kode Pengiriman Internal' }}
                                 </span>
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                                    Ekspedisi: {{ $shipment->carrier_label }}
-                                </span>
+                                @if ($shipment->isExternal())
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                        {{ $shipment->carrier_label }}
+                                    </span>
+                                @else
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                        Armada Perusahaan
+                                    </span>
+                                @endif
                             </div>
                             <h2 class="text-xl sm:text-2xl font-poppins font-bold text-gray-900 tracking-tight leading-none font-mono mt-0.5">
                                 {{ $shipment->display_code }}

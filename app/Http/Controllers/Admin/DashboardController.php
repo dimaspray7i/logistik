@@ -14,16 +14,14 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Statistik Global KPI (Requirement 17)
+        // 1. Statistik Global KPI
         $stats = [
-            'total_customers'  => Customer::count(),
-            'total_orders'     => Order::count(),
-            'total_shipments'  => Shipment::count(),
-            'active_shipments' => Shipment::whereIn('status', [ShipmentStatus::READY->value, ShipmentStatus::IN_TRANSIT->value, ShipmentStatus::DELAYED->value])->count(),
-            'pending_orders'   => Order::where('status', 'PENDING')->count(),
-            'in_transit'       => Shipment::where('status', ShipmentStatus::IN_TRANSIT->value)->count(),
-            'delivered'        => Shipment::where('status', ShipmentStatus::DELIVERED->value)->count(),
-            'delayed'          => Shipment::where('status', ShipmentStatus::DELAYED->value)->count(),
+            'total_customers' => Customer::count(),
+            'total_orders'    => Order::count(),
+            'total_shipments' => Shipment::count(),
+            'in_transit'      => Shipment::where('status', ShipmentStatus::IN_TRANSIT->value)->count(),
+            'delivered'      => Shipment::where('status', ShipmentStatus::DELIVERED->value)->count(),
+            'delayed'        => Shipment::where('status', ShipmentStatus::DELAYED->value)->count(),
         ];
 
         // 2. Recent Shipments (5 terbaru dengan Eager Loading customer & order)
@@ -44,7 +42,7 @@ class DashboardController extends Controller
             ->get();
 
         // Jika belum ada TrackingUpdate khusus, ambil shipment aktif sebagai timeline fallback
-        $activeShipments = Shipment::with(['customer', 'expeditionProvider'])
+        $activeShipments = Shipment::with(['customer', 'vehicle', 'driver'])
             ->whereIn('status', [ShipmentStatus::IN_TRANSIT->value, ShipmentStatus::READY->value, ShipmentStatus::DELAYED->value])
             ->latest()
             ->take(5)

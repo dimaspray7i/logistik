@@ -24,10 +24,17 @@
             <div>
                 <div class="flex items-center gap-3 flex-wrap">
                     <h1 class="text-2xl font-bold text-gray-900 tracking-tight font-mono">{{ $shipment->display_code }}</h1>
-                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        <span>Ekspedisi: {{ $shipment->carrier_label }}</span>
-                    </span>
+                    @if ($shipment->isExternal())
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span>Ekspedisi: {{ $shipment->carrier_label }}</span>
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+                            <span>Armada Internal</span>
+                        </span>
+                    @endif
                     <x-badge :status="$shipment->status" />
                 </div>
                 <p class="text-sm text-gray-500 mt-1 font-normal">
@@ -40,22 +47,29 @@
         <div class="crm-card space-y-4">
             <div class="border-b border-gray-100 pb-3 flex items-center justify-between">
                 <h2 class="font-poppins font-bold text-base text-gray-900">Informasi Pengiriman</h2>
-                <span class="text-xs text-gray-400 font-medium">Metode: <strong class="text-gray-700">Ekspedisi Eksternal</strong></span>
+                <span class="text-xs text-gray-400 font-medium">Metode: <strong class="text-gray-700">{{ $shipment->isExternal() ? 'Ekspedisi Eksternal' : 'Armada Perusahaan' }}</strong></span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm">
-                <div>
-                    <p class="text-gray-400 font-medium">Penyedia Ekspedisi</p>
-                    <p class="font-bold text-blue-700 mt-0.5">{{ $shipment->carrier_label }}</p>
-                </div>
-                <div>
-                    <p class="text-gray-400 font-medium">Nomor Resi / Pelacakan</p>
-                    <p class="font-bold text-gray-900 font-mono mt-0.5">{{ $shipment->tracking_number ?: '-' }}</p>
-                </div>
-                <div>
-                    <p class="text-gray-400 font-medium">Nomor Pengiriman (Referensi Sistem)</p>
-                    <p class="font-semibold text-gray-700 font-mono mt-0.5">{{ $shipment->shipment_number }}</p>
-                </div>
+                @if ($shipment->isExternal())
+                    <div>
+                        <p class="text-gray-400 font-medium">Jasa Pengiriman / Carrier</p>
+                        <p class="font-bold text-blue-700 mt-0.5">{{ $shipment->carrier_label }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 font-medium">Nomor Resi / Pelacakan</p>
+                        <p class="font-bold text-gray-900 font-mono mt-0.5">{{ $shipment->tracking_number ?: '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 font-medium">Kode Pengiriman Sistem</p>
+                        <p class="font-semibold text-gray-700 font-mono mt-0.5">{{ $shipment->shipment_number }}</p>
+                    </div>
+                @else
+                    <div>
+                        <p class="text-gray-400 font-medium">Kode Pengiriman Internal</p>
+                        <p class="font-bold text-gray-900 font-mono mt-0.5">{{ $shipment->shipment_number }}</p>
+                    </div>
+                @endif
                 <div>
                     <p class="text-gray-400 font-medium">Pelanggan</p>
                     <a href="{{ route('admin.customers.show', $shipment->customer_id) }}" class="font-bold text-info hover:underline mt-0.5 block">
@@ -72,6 +86,18 @@
                     <p class="text-gray-400 font-medium">Total Berat</p>
                     <p class="font-semibold text-gray-900 mt-0.5">{{ number_format($shipment->total_weight, 0) }} Kg</p>
                 </div>
+                @if ($shipment->isInternal())
+                    <div>
+                        <p class="text-gray-400 font-medium">Kendaraan Internal</p>
+                        <p class="font-semibold text-gray-900 mt-0.5">
+                            {{ $shipment->vehicle ? $shipment->vehicle->plate_number . ' (' . $shipment->vehicle->vehicle_type . ')' : 'Belum diassign' }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 font-medium">Supir / Driver</p>
+                        <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->driver->name ?? 'Belum diassign' }}</p>
+                    </div>
+                @endif
                 <div>
                     <p class="text-gray-400 font-medium">Tanggal Berangkat</p>
                     <p class="font-semibold text-gray-900 mt-0.5">{{ $shipment->departure_date ? $shipment->departure_date->format('d M Y H:i') : '-' }}</p>

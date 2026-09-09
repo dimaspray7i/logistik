@@ -82,16 +82,8 @@ class ShipmentTrackingTest extends TestCase
             'status' => OrderStatus::PROCESSING,
         ]);
 
-        $provider = \App\Models\ExpeditionProvider::firstOrCreate(
-            ['code' => 'AEI'],
-            ['name' => 'AEI — PT. Antar Exprindo Indah', 'is_active' => true]
-        );
-
         $this->shipmentA = Shipment::create([
             'shipment_number' => 'SHP-20260901-004',
-            'shipping_type' => 'EXTERNAL',
-            'expedition_provider_id' => $provider->id,
-            'tracking_number' => 'AEI-TRACK-004',
             'order_id' => $orderA->id,
             'customer_id' => $this->customerA->id,
             'origin' => 'Medan',
@@ -104,9 +96,6 @@ class ShipmentTrackingTest extends TestCase
 
         $this->shipmentB = Shipment::create([
             'shipment_number' => 'SHP-20260901-005',
-            'shipping_type' => 'EXTERNAL',
-            'expedition_provider_id' => $provider->id,
-            'tracking_number' => 'AEI-TRACK-005',
             'order_id' => $orderB->id,
             'customer_id' => $this->customerB->id,
             'origin' => 'Jakarta',

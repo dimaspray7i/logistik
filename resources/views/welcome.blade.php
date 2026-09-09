@@ -136,7 +136,7 @@
 
                         <!-- Subtitle -->
                         <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                            Platform manajemen logistik terintegrasi untuk mengelola pelanggan, pesanan, pengiriman ekspedisi (AEI), dan live tracking resi.
+                            Platform manajemen logistik untuk membantu mengelola pelanggan, pesanan, pengiriman, kendaraan, driver, dan tracking dalam satu sistem.
                         </p>
 
                         <!-- CTA Buttons -->
@@ -161,26 +161,8 @@
                             @endauth
                         </div>
 
-                        <!-- Cek Resi Quick Form -->
-                        <div class="pt-2">
-                            <form action="{{ route('tracking.search') }}" method="POST" class="bg-white p-2 rounded-2xl border border-gray-200 shadow-md flex flex-col sm:flex-row items-center gap-2 max-w-xl">
-                                @csrf
-                                <div class="relative w-full flex-1">
-                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                    </div>
-                                    <input type="text" name="tracking_number" placeholder="Lacak Pengiriman (Masukkan Nomor Resi, misal: AEI123456789)..." required
-                                           class="w-full pl-10 pr-4 py-2.5 bg-transparent border-0 text-sm font-mono text-gray-900 focus:ring-0 placeholder:text-gray-400 font-medium uppercase">
-                                </div>
-                                <button type="submit" class="btn-primary w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap shadow-sm">
-                                    Lacak Pengiriman
-                                </button>
-                            </form>
-                            <p class="text-[11px] text-gray-500 mt-2 pl-1">Mendukung resi ekspedisi mitra AEI — PT. Antar Exprindo Indah dan provider ekspedisi lainnya.</p>
-                        </div>
-
                         <!-- Micro Highlights -->
-                        <div class="pt-4 grid grid-cols-3 gap-4 border-t border-gray-200/80 max-w-lg mx-auto lg:mx-0">
+                        <div class="pt-6 grid grid-cols-3 gap-4 border-t border-gray-200/80 max-w-lg mx-auto lg:mx-0">
                             <div>
                                 <p class="text-xl sm:text-2xl font-bold text-gray-900 font-poppins">Real-time</p>
                                 <p class="text-xs text-gray-500 font-medium mt-0.5">Tracking Status</p>
@@ -229,7 +211,7 @@
                                             </div>
                                             <div class="min-w-0">
                                                 <p class="text-xs font-semibold text-gray-800 truncate">Kargo Jakarta ke Surabaya</p>
-                                                <p class="text-[11px] text-blue-700 font-medium truncate">Penyedia: AEI — PT. Antar Exprindo Indah</p>
+                                                <p class="text-[11px] text-gray-500 truncate">Armada: Truk Tronton (B 9281 KXA)</p>
                                             </div>
                                         </div>
                                         <span class="text-xs font-bold text-gray-700 shrink-0 ml-2">85%</span>
@@ -252,8 +234,8 @@
                                 <!-- Mini Metrics in Card -->
                                 <div class="grid grid-cols-2 gap-3 pt-1">
                                     <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
-                                        <span class="text-[11px] text-gray-500 font-medium">Penyedia Ekspedisi</span>
-                                        <p class="text-base font-bold text-gray-900 mt-0.5 font-poppins">Mitra AEI</p>
+                                        <span class="text-[11px] text-gray-500 font-medium">Armada & Supir</span>
+                                        <p class="text-base font-bold text-gray-900 mt-0.5 font-poppins">Terkoneksi</p>
                                     </div>
                                     <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
                                         <span class="text-[11px] text-gray-500 font-medium">Customer Portal</span>
@@ -327,9 +309,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 font-poppins">Pengiriman & Resi</h3>
+                        <h3 class="text-lg font-bold text-gray-900 font-poppins">Pengiriman & Manifest</h3>
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            Pilih penyedia ekspedisi (AEI) dan masukkan nomor resi pengiriman untuk melacak perjalanan kargo.
+                            Alokasikan armada dan pengemudi pada setiap surat jalan pengiriman lengkap dengan nomor referensi dan jadwal.
                         </p>
                     </div>
 
@@ -341,22 +323,22 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 font-poppins">Live Resi Tracking</h3>
+                        <h3 class="text-lg font-bold text-gray-900 font-poppins">Live Milestone Tracking</h3>
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            Pantau pergerakan pengiriman berdasarkan update checkpoint lokasi, timestamp, dan status ekspedisi.
+                            Pantau pergerakan pengiriman berdasarkan update checkpoint lokasi, timestamp, dan catatan perjalanan driver.
                         </p>
                     </div>
 
-                    <!-- 5. Penyedia Ekspedisi -->
+                    <!-- 5. Kendaraan & Driver -->
                     <div class="crm-card bg-white hover:shadow-card hover:-translate-y-1 transition-all duration-200 space-y-4 rounded-card">
                         <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 font-poppins">Penyedia Ekspedisi</h3>
+                        <h3 class="text-lg font-bold text-gray-900 font-poppins">Kendaraan & Driver</h3>
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            Integrasi penyedia ekspedisi mitra seperti AEI — PT. Antar Exprindo Indah, JNE, J&T, SiCepat, dan Pos Indonesia.
+                            Inventarisasi armada truk, kapasitas muatan, plat nomor, dokumen KIR/STNK, dan profil driver yang bertugas.
                         </p>
                     </div>
 
@@ -416,12 +398,12 @@
                             <span class="w-9 h-9 rounded-xl bg-gray-900 text-white font-poppins font-bold text-sm flex items-center justify-center shadow-xs">
                                 02
                             </span>
-                            <h3 class="text-base font-bold text-gray-900 font-poppins">Pilih Ekspedisi & Resi</h3>
+                            <h3 class="text-base font-bold text-gray-900 font-poppins">Proses Pengiriman</h3>
                             <p class="text-xs text-gray-600 leading-relaxed">
-                                Pilih penyedia ekspedisi mitra (AEI) dan masukkan nomor resi pengiriman kargo.
+                                Atur proses operasional pengiriman, tentukan unit kendaraan, dan tetapkan supir yang bertugas.
                             </p>
                         </div>
-                        <div class="pt-2 text-[11px] font-semibold text-gray-700">Penyedia Ekspedisi</div>
+                        <div class="pt-2 text-[11px] font-semibold text-gray-700">Penugasan Armada</div>
                     </div>
 
                     <!-- Step 3 -->

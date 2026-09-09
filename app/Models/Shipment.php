@@ -17,7 +17,6 @@ class Shipment extends Model
 
     protected $fillable = [
         'shipment_number', 'shipping_type', 'carrier', 'tracking_number',
-        'expedition_provider_id',
         'order_id', 'customer_id', 'vehicle_id', 'driver_id',
         'origin', 'destination', 'departure_date', 'estimated_arrival', 'actual_arrival',
         'total_weight', 'status', 'notes',
@@ -57,28 +56,11 @@ class Shipment extends Model
 
     public function getCarrierLabelAttribute(): string
     {
-        if ($this->isExternal()) {
-            // Prioritas: nama provider dari DB, fallback ke teks carrier lama
-            if ($this->expeditionProvider) {
-                return $this->expeditionProvider->name;
-            }
-            if (!empty($this->carrier)) {
-                return $this->carrier;
-            }
+        if ($this->isExternal() && !empty($this->carrier)) {
+            return $this->carrier;
         }
 
         return 'Armada Perusahaan';
-    }
-
-    /**
-     * Get short provider code/name for display.
-     */
-    public function getProviderCodeAttribute(): string
-    {
-        if ($this->expeditionProvider) {
-            return $this->expeditionProvider->code;
-        }
-        return $this->carrier ?? '—';
     }
 
     public function order(): BelongsTo
@@ -99,11 +81,6 @@ class Shipment extends Model
     public function driver(): BelongsTo
     {
         return $this->belongsTo(Driver::class);
-    }
-
-    public function expeditionProvider(): BelongsTo
-    {
-        return $this->belongsTo(ExpeditionProvider::class);
     }
 
     public function items(): HasMany

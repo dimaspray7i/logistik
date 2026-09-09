@@ -16,22 +16,19 @@ class ShipmentFactory extends Factory
         $status = fake()->randomElement(ShipmentStatus::cases());
         
         return [
-            'shipment_number'   => 'SHP-' . date('Ymd') . '-' . fake()->unique()->numberBetween(100, 999),
-            'shipping_type'     => 'EXTERNAL',
-            'carrier'           => 'AEI',
-            'tracking_number'   => 'AEI' . fake()->numberBetween(100000, 999999),
-            'order_id'          => Order::factory(),
-            'customer_id'       => Customer::factory(),
-            'vehicle_id'        => null,
-            'driver_id'         => null,
-            'origin'            => fake()->city(),
-            'destination'       => fake()->city(),
-            'departure_date'    => $status->value !== 'DRAFT' ? fake()->dateTimeBetween('-2 weeks', 'now') : null,
+            'shipment_number' => 'SHP-' . date('Ymd') . '-' . fake()->unique()->numberBetween(100, 999),
+            'order_id' => Order::factory(),
+            'customer_id' => Customer::factory(),
+            'vehicle_id' => Vehicle::factory(),
+            'driver_id' => Driver::factory(),
+            'origin' => fake()->city(),
+            'destination' => fake()->city(),
+            'departure_date' => $status->value !== 'DRAFT' ? fake()->dateTimeBetween('-2 weeks', 'now') : null,
             'estimated_arrival' => fake()->dateTimeBetween('now', '+2 weeks'),
-            'actual_arrival'    => in_array($status->value, ['DELIVERED', 'ARRIVED']) ? fake()->dateTimeBetween('-1 week', 'now') : null,
-            'total_weight'      => fake()->numberBetween(100, 5000),
-            'status'            => $status->value,
-            'notes'             => fake()->optional()->sentence(),
+            'actual_arrival' => in_array($status->value, ['DELIVERED', 'ARRIVED']) ? fake()->dateTimeBetween('-1 week', 'now') : null,
+            'total_weight' => fake()->numberBetween(100, 5000),
+            'status' => $status->value,
+            'notes' => fake()->optional()->sentence(),
         ];
     }
 }
