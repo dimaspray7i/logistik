@@ -19,7 +19,8 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
     </head>
-    <body class="font-sans antialiased bg-[#F5F1E6] text-gray-900 selection:bg-primary/20 selection:text-primary min-h-screen flex flex-col" x-data="{ mobileMenuOpen: false }">
+    <body class="public-layout font-sans antialiased bg-[#F5F1E6] text-gray-900 selection:bg-primary/20 selection:text-primary min-h-screen flex flex-col" x-data="{ mobileMenuOpen: false }">
+
 
         <!-- ========================================================================= -->
         <!-- NAVBAR -->

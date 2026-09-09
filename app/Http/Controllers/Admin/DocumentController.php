@@ -13,7 +13,7 @@ class DocumentController extends Controller
 {
     use AuthorizesRequests;
 
-    public function show(Document $document)
+    public function show(Document $document, \Illuminate\Http\Request $request)
     {
         $this->authorize('view', $document);
 
@@ -33,12 +33,22 @@ class DocumentController extends Controller
             'file_name' => $document->file_name,
         ]);
 
+        // Force download if ?download=1 is set
+        if ($request->boolean('download')) {
+            return Storage::disk($disk)->download(
+                $document->file_path,
+                $document->file_name,
+                ['Content-Type' => $document->mime_type ?? 'application/octet-stream']
+            );
+        }
+
         return Storage::disk($disk)->response(
             $document->file_path,
             $document->file_name,
             ['Content-Type' => $document->mime_type ?? 'application/octet-stream']
         );
     }
+
 
     public function store(StoreDocumentRequest $request, Shipment $shipment)
     {

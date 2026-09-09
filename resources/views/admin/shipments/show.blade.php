@@ -389,82 +389,50 @@
 
             <!-- Daftar Dokumen Card -->
             <div class="crm-card space-y-4">
-                <div class="border-b border-gray-100 pb-3">
-                    <h2 class="font-poppins font-bold text-base text-gray-900">Dokumen Pengiriman</h2>
+                <div class="border-b border-gray-100 pb-3 flex items-center justify-between">
+                    <div>
+                        <h2 class="font-poppins font-bold text-base text-gray-900">Dokumen Pengiriman</h2>
+                        <p class="text-xs text-gray-400 mt-0.5">File dan surat resmi terkait pengiriman ini</p>
+                    </div>
+                    @if($shipment->documents->count() > 0)
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-badge text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                            {{ $shipment->documents->count() }} file
+                        </span>
+                    @endif
                 </div>
 
                 @if($shipment->documents->count() > 0)
                     <div class="space-y-3">
                         @foreach($shipment->documents as $document)
-                            <div class="flex items-center justify-between p-3 rounded-card border border-gray-100 bg-gray-50">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-9 h-9 rounded-btn bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <p class="text-xs font-bold text-gray-900 truncate">{{ $document->file_name }}</p>
-                                        <p class="text-[10px] text-gray-500">
-                                            {{ is_object($document->type) && method_exists($document->type, 'label') ? $document->type->label() : $document->type }} &middot; {{ number_format(($document->file_size ?? 0) / 1024, 0) }} KB
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <a href="{{ route('documents.show', $document) }}" target="_blank" class="btn-ghost text-xs text-info px-2 py-1">
-                                        Lihat
-                                    </a>
-                                    <form action="{{ route('admin.shipments.documents.destroy', [$shipment, $document]) }}" method="POST"
-                                          onsubmit="return confirm('Hapus dokumen ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-ghost text-xs text-primary px-2 py-1">Hapus</button>
-                                    </form>
-                                </div>
-                            </div>
+                            <x-document-card
+                                :document="$document"
+                                :showRoute="route('documents.show', $document)"
+                                :deleteRoute="route('admin.shipments.documents.destroy', [$shipment, $document])"
+                                :canDelete="true"
+                            />
                         @endforeach
                     </div>
                 @else
-                    <p class="text-center text-xs text-gray-400 py-6">Belum ada dokumen yang diunggah.</p>
+                    <div class="flex flex-col items-center justify-center py-10 text-center">
+                        <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <p class="text-sm font-medium text-gray-400">Belum ada dokumen</p>
+                        <p class="text-xs text-gray-300 mt-1">Upload dokumen pertama melalui form di samping</p>
+                    </div>
                 @endif
             </div>
 
-            <!-- Form Upload Dokumen Card -->
-            <div class="crm-card space-y-4">
-                <div class="border-b border-gray-100 pb-3">
-                    <h2 class="font-poppins font-bold text-base text-gray-900">Unggah Dokumen Baru</h2>
-                </div>
-
-                <form method="POST" action="{{ route('admin.shipments.documents.store', $shipment) }}" enctype="multipart/form-data" class="space-y-4">
-                    @csrf
-
-                    <div>
-                        <label for="doc_title" class="crm-label">Judul Dokumen <span class="text-primary">*</span></label>
-                        <input id="doc_title" type="text" name="title" value="{{ old('title') }}" placeholder="Contoh: Surat Jalan TTD / Invoice" required class="crm-input">
-                        @error('title') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <label for="doc_type" class="crm-label">Tipe Dokumen <span class="text-primary">*</span></label>
-                        <select id="doc_type" name="type" required class="crm-input">
-                            @foreach (\App\Enums\DocumentType::cases() as $type)
-                                <option value="{{ $type->value }}" @selected(old('type') == $type->value)>{{ $type->label() }}</option>
-                            @endforeach
-                        </select>
-                        @error('type') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <label for="doc_file" class="crm-label">Pilih File (PDF, JPG, PNG) <span class="text-primary">*</span></label>
-                        <input id="doc_file" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required class="crm-input text-xs">
-                        @error('file') <p class="text-primary text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-
-                    <button type="submit" class="btn-primary w-full">
-                        + Upload Dokumen
-                    </button>
-                </form>
-            </div>
+            <!-- Form Upload Dokumen (component) -->
+            <x-document-upload-form
+                :action="route('admin.shipments.documents.store', $shipment)"
+                :documentTypes="\App\Enums\DocumentType::cases()"
+            />
 
         </div>
 
     </div>
-</x-app-layout>
+</x-app-layout>
+
