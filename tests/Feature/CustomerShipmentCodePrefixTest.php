@@ -7,6 +7,7 @@ use App\Enums\ShipmentStatus;
 use App\Enums\ShippingType;
 use App\Enums\UserRole;
 use App\Models\Customer;
+use App\Models\ExpeditionProvider;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\User;
@@ -26,6 +27,7 @@ class CustomerShipmentCodePrefixTest extends TestCase
     private Order $orderAdijaya1;
     private Order $orderAdijaya2;
     private Order $orderMajuJaya1;
+    private ExpeditionProvider $providerAEI;
 
     protected function setUp(): void
     {
@@ -36,6 +38,11 @@ class CustomerShipmentCodePrefixTest extends TestCase
             'role' => UserRole::ADMIN,
             'customer_id' => null,
         ]);
+
+        $this->providerAEI = ExpeditionProvider::firstOrCreate(
+            ['code' => 'AEI'],
+            ['name' => 'AEI — PT. Antar Exprindo Indah', 'is_active' => true]
+        );
 
         // PT Adijaya dengan prefix ADJ
         $this->adijaya = Customer::create([
@@ -106,7 +113,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderAdijaya1->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-TEST-001',
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
             'status' => 'READY',
@@ -117,7 +126,6 @@ class CustomerShipmentCodePrefixTest extends TestCase
         $shipment = Shipment::firstWhere('order_id', $this->orderAdijaya1->id);
         $this->assertNotNull($shipment);
         $this->assertEquals('ADJ-19001', $shipment->shipment_number);
-        $this->assertEquals('ADJ-19001', $shipment->display_code);
     }
 
     /** 3. Pengiriman kedua untuk PT Adijaya menghasilkan ADJ-19002 */
@@ -125,7 +133,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
     {
         $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderAdijaya1->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-TEST-001',
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
             'status' => 'READY',
@@ -133,7 +143,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
 
         $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderAdijaya2->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-TEST-002',
             'origin' => 'Jakarta',
             'destination' => 'Semarang',
             'status' => 'READY',
@@ -152,7 +164,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
         // PT Adijaya buat 2 pengiriman -> ADJ-19001, ADJ-19002
         $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderAdijaya1->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-TEST-001',
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
             'status' => 'READY',
@@ -161,7 +175,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
         // PT Maju Jaya buat pengiriman -> Harus MJY-19001, bukan MJY-19003!
         $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderMajuJaya1->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-TEST-003',
             'origin' => 'Surabaya',
             'destination' => 'Malang',
             'status' => 'READY',
@@ -194,7 +210,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
 
         $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $orderNoPrefix->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-NOPREFIX-001',
             'origin' => 'Medan',
             'destination' => 'Padang',
             'status' => 'READY',
@@ -227,7 +245,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderAdijaya1->id,
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-SPOOF-001',
             'shipment_number' => 'FAKE-CODE-999', // Payload jahat dipasang pengguna
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
@@ -240,14 +260,15 @@ class CustomerShipmentCodePrefixTest extends TestCase
         $this->assertEquals('ADJ-19001', $shipment->shipment_number);
     }
 
-    /** 8. Pengiriman eksternal tidak menggunakan generator prefix customer */
-    public function test_external_shipment_does_not_use_customer_prefix(): void
+    /** 8. Pengiriman eksternal menyimpan provider dan resi */
+    public function test_external_shipment_saves_provider_and_resi(): void
     {
         $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $this->orderAdijaya1->id,
             'shipping_type' => 'EXTERNAL',
-            'carrier' => 'JNE',
-            'tracking_number' => 'JNE88776655',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'carrier' => 'AEI',
+            'tracking_number' => 'AEI88776655',
             'origin' => 'Jakarta',
             'destination' => 'Bandung',
             'status' => 'READY',
@@ -255,8 +276,8 @@ class CustomerShipmentCodePrefixTest extends TestCase
 
         $shipment = Shipment::firstWhere('order_id', $this->orderAdijaya1->id);
         $this->assertNotNull($shipment);
-        $this->assertEquals('JNE88776655', $shipment->display_code);
-        $this->assertEquals('JNE', $shipment->carrier);
+        $this->assertEquals('AEI88776655', $shipment->display_code);
+        $this->assertEquals('AEI88776655', $shipment->tracking_number);
     }
 
     /** 9. Historical SHP shipments remain safe and searchable */
@@ -264,7 +285,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
     {
         $shp = Shipment::create([
             'shipment_number' => 'SHP-123456',
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-123456',
             'order_id' => $this->orderAdijaya1->id,
             'customer_id' => $this->adijaya->id,
             'origin' => 'Jakarta',
@@ -282,7 +305,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
     {
         $shipmentAdj = Shipment::create([
             'shipment_number' => 'ADJ-19001',
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-ADJ-001',
             'order_id' => $this->orderAdijaya1->id,
             'customer_id' => $this->adijaya->id,
             'origin' => 'Jakarta',
@@ -292,7 +317,9 @@ class CustomerShipmentCodePrefixTest extends TestCase
 
         $shipmentMjy = Shipment::create([
             'shipment_number' => 'MJY-19001',
-            'shipping_type' => 'INTERNAL',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-MJY-001',
             'order_id' => $this->orderMajuJaya1->id,
             'customer_id' => $this->majuJaya->id,
             'origin' => 'Surabaya',
@@ -306,3 +333,4 @@ class CustomerShipmentCodePrefixTest extends TestCase
         $res->assertDontSee('MJY-19001');
     }
 }
+

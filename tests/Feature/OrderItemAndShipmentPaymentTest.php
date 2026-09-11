@@ -23,6 +23,7 @@ class OrderItemAndShipmentPaymentTest extends TestCase
     private Customer $customer;
     private Product $productA;
     private Product $productB;
+    private \App\Models\ExpeditionProvider $providerAEI;
 
     protected function setUp(): void
     {
@@ -32,6 +33,11 @@ class OrderItemAndShipmentPaymentTest extends TestCase
             'role' => UserRole::ADMIN,
             'customer_id' => null,
         ]);
+
+        $this->providerAEI = \App\Models\ExpeditionProvider::firstOrCreate(
+            ['code' => 'AEI'],
+            ['name' => 'AEI — PT. Antar Exprindo Indah', 'is_active' => true]
+        );
 
         $this->customer = Customer::create([
             'name' => 'Budi Santoso',
@@ -196,6 +202,8 @@ class OrderItemAndShipmentPaymentTest extends TestCase
 
         $response = $this->actingAs($this->admin)->post(route('admin.shipments.store'), [
             'order_id' => $order->id,
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-SHP-001',
             'origin' => 'Gresik',
             'destination' => 'Surabaya',
             'status' => 'READY',
@@ -229,6 +237,9 @@ class OrderItemAndShipmentPaymentTest extends TestCase
 
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-PAY-001',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-001',
             'order_id' => $order->id,
             'customer_id' => $this->customer->id,
             'origin' => 'Gresik',
@@ -239,6 +250,8 @@ class OrderItemAndShipmentPaymentTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)->put(route('admin.shipments.update', $shipment), [
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-001',
             'origin' => 'Gresik',
             'destination' => 'Surabaya',
             'status' => 'DELIVERED',
@@ -264,6 +277,9 @@ class OrderItemAndShipmentPaymentTest extends TestCase
 
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-PAY-002',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-002',
             'order_id' => $order->id,
             'customer_id' => $this->customer->id,
             'origin' => 'Gresik',
@@ -273,6 +289,8 @@ class OrderItemAndShipmentPaymentTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)->put(route('admin.shipments.update', $shipment), [
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-002',
             'origin' => 'Gresik',
             'destination' => 'Surabaya',
             'status' => 'DELIVERED',
@@ -294,6 +312,9 @@ class OrderItemAndShipmentPaymentTest extends TestCase
 
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-PAY-003',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-003',
             'order_id' => $order->id,
             'customer_id' => $this->customer->id,
             'origin' => 'Gresik',
@@ -304,6 +325,8 @@ class OrderItemAndShipmentPaymentTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)->put(route('admin.shipments.update', $shipment), [
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-003',
             'origin' => 'Gresik',
             'destination' => 'Surabaya',
             'status' => 'DELIVERED',
@@ -329,6 +352,9 @@ class OrderItemAndShipmentPaymentTest extends TestCase
 
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-PAY-004',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-004',
             'order_id' => $order->id,
             'customer_id' => $this->customer->id,
             'origin' => 'Gresik',
@@ -337,6 +363,8 @@ class OrderItemAndShipmentPaymentTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)->put(route('admin.shipments.update', $shipment), [
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-004',
             'origin' => 'Gresik',
             'destination' => 'Surabaya',
             'status' => 'READY',
@@ -357,6 +385,9 @@ class OrderItemAndShipmentPaymentTest extends TestCase
 
         $shipment = Shipment::create([
             'shipment_number' => 'SHP-PAY-005',
+            'shipping_type' => 'EXTERNAL',
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-005',
             'order_id' => $order->id,
             'customer_id' => $this->customer->id,
             'origin' => 'Gresik',
@@ -366,6 +397,8 @@ class OrderItemAndShipmentPaymentTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->customerUser)->put(route('admin.shipments.update', $shipment), [
+            'expedition_provider_id' => $this->providerAEI->id,
+            'tracking_number' => 'AEI-PAY-005',
             'origin' => 'Gresik',
             'destination' => 'Surabaya',
             'status' => 'DELIVERED',
